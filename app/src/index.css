@@ -1,13 +1,22 @@
 :root {
   color-scheme: light;
 
-  --bg: #fbfaf6;
-  --bg2: #f1f6ff;
-  --surface: rgba(255, 255, 255, 0.84);
-  --text: #121416;
-  --muted: rgba(18, 20, 22, 0.65);
-  --line: rgba(18, 20, 22, 0.14);
-  --accent: #0f766e;
+  --primary: #2f5da7;
+  --on-primary: #ffffff;
+  --primary-container: #dae2ff;
+  --on-primary-container: #001849;
+  --secondary: #5a5d72;
+  --on-secondary: #ffffff;
+  --surface: #fdfcff;
+  --surface-container: #f2f4f8;
+  --surface-container-high: #e6e8ee;
+  --surface-variant: #e1e2ec;
+  --text: #1a1c21;
+  --muted: #4b4f5c;
+  --outline: #c4c7d0;
+  --accent: #2f5da7;
+  --shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+  --shadow-soft: 0 2px 8px rgba(15, 23, 42, 0.12);
 
   font-family: "BIZ UDPGothic", "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, system-ui,
     -apple-system, "Segoe UI", sans-serif;
@@ -29,20 +38,15 @@ body {
   min-width: 320px;
   min-height: 100vh;
   color: var(--text);
-  background:
-    radial-gradient(900px 540px at 10% 0%, color-mix(in oklab, var(--bg2) 70%, transparent) 0%,
-      transparent 65%),
-    radial-gradient(900px 540px at 90% 30%, color-mix(in oklab, var(--bg) 70%, transparent) 0%,
-      transparent 60%),
-    linear-gradient(180deg, var(--bg) 0%, #ffffff 100%);
+  background: #f7f8fc;
 }
 
 a {
-  color: color-mix(in oklab, var(--text) 82%, var(--accent));
+  color: var(--accent);
 }
 
 a:hover {
-  color: var(--accent);
+  color: color-mix(in oklab, var(--accent) 70%, #000);
 }
 
 button,
@@ -52,19 +56,23 @@ textarea {
 }
 
 button {
-  border: 1px solid var(--line);
-  background: var(--surface);
-  border-radius: 10px;
-  padding: 8px 10px;
+  border: none;
+  background: var(--primary);
+  color: var(--on-primary);
+  border-radius: 999px;
+  padding: 9px 16px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  box-shadow: var(--shadow-soft);
 }
 
 button:hover {
-  border-color: color-mix(in oklab, var(--line) 60%, var(--accent));
+  filter: brightness(0.98);
 }
 
 button:focus-visible,
 input:focus-visible,
 textarea:focus-visible {
-  outline: 3px solid color-mix(in oklab, var(--accent) 30%, transparent);
+  outline: 3px solid color-mix(in oklab, var(--accent) 35%, transparent);
   outline-offset: 2px;
 }
