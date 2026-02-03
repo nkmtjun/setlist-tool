@@ -127,6 +127,27 @@
   margin-bottom: 12px;
 }
 
+.detailsPanel {
+  padding: 0;
+}
+
+.detailsSummary {
+  cursor: pointer;
+  padding: 14px;
+  font-weight: 900;
+  color: var(--text);
+}
+
+.detailsSummary:focus-visible {
+  outline: 3px solid color-mix(in oklab, var(--accent) 30%, transparent);
+  outline-offset: 3px;
+  border-radius: 10px;
+}
+
+.detailsBody {
+  padding: 0 14px 14px;
+}
+
 .field {
   display: grid;
   gap: 6px;
