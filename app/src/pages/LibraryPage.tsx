@@ -128,6 +128,32 @@ export default function LibraryPage() {
       </div>
 
       <div className="panel">
+        <div className="field">
+          <div className="fieldLabel">CSVの作り方（形式 / 取り込みルール）</div>
+          <p className="muted">手順: 右上の「CSVインポート」→ CSVファイルを選択すると取り込みが開始されます。</p>
+          <p className="muted">
+            列は <code>title</code>, <code>artist</code>, <code>comment</code>, <code>url</code> を使用します（5列目以降は無視）。
+          </p>
+          <p className="muted">
+            ヘッダ行あり推奨：1行目に列名を入れ、ヘッダに <code>title</code> が含まれる場合は列名で読み取ります。ヘッダがない場合は 1〜4列目を順に割り当てます。
+          </p>
+          <p className="muted">
+            文字コードは UTF-8（BOMあり/なし対応）。各セルの前後空白は自動で trim され、<code>title</code> が空の行はスキップします。
+          </p>
+          <p className="muted">
+            重複は <code>title</code> + <code>artist</code> の完全一致で判定し、既存データ／同一CSV内の重複は取り込みません。
+          </p>
+        </div>
+
+        <div className="field">
+          <div className="fieldLabel">CSV例</div>
+          <pre className="outputBox">{`title,artist,comment,url
+Lemon,米津玄師,キー:+2,https://example.com/lemon
+シーソーゲーム,Mr.Children,,`}</pre>
+        </div>
+      </div>
+
+      <div className="panel">
         <label className="field">
           <div className="fieldLabel">検索（曲名 / アーティスト）</div>
           <input
