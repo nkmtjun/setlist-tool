@@ -64,3 +64,17 @@ npm run preview
 ```
 
 - インポート時は既存セットリストを上書きせず、新規として保存します（ID は再採番）。
+
+## MCP（npx設定）
+
+このリポジトリには MCP サーバ設定ファイル `mcp.json` を同梱しています。
+
+- Playwright MCP: `@playwright/mcp@latest`
+- Chrome DevTools MCP: `chrome-devtools-mcp@latest`
+
+起動確認（ヘルプ表示）:
+
+```bash
+npx -y chrome-devtools-mcp@latest --help
+npx -y -p @playwright/mcp@latest playwright-mcp --help
+```
