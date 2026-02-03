@@ -1,0 +1,478 @@
+.appShell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.appHeader {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  backdrop-filter: blur(10px);
+  background: color-mix(in oklab, var(--surface) 75%, transparent);
+  border-bottom: 1px solid var(--line);
+}
+
+.appTitle {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 14px 16px 6px;
+}
+
+.appNav {
+  display: flex;
+  gap: 10px;
+  padding: 0 16px 12px;
+}
+
+.appNav a {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.appNav a:hover {
+  border-color: color-mix(in oklab, var(--line) 60%, var(--accent));
+}
+
+.appMain {
+  flex: 1;
+  padding: 18px 16px 32px;
+}
+
+.page {
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.pageHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.pageActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.page h1 {
+  margin: 0 0 10px;
+  font-size: 22px;
+}
+
+.muted {
+  margin: 0;
+  color: var(--muted);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.cardList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.card {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.cardTitle {
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  margin-bottom: 6px;
+}
+
+.cardMeta {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.cardActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.panel {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.fieldLabel {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.textInput,
+.textArea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 10px 12px;
+}
+
+.textArea {
+  resize: vertical;
+}
+
+.counts {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.rowActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.rows {
+  display: grid;
+  gap: 12px;
+}
+
+.row {
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.82);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.rowHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.dragHandle {
+  font-size: 12px;
+  font-weight: 800;
+  padding: 6px 8px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in oklab, var(--line) 70%, var(--accent));
+  background: color-mix(in oklab, var(--surface) 88%, var(--accent));
+  cursor: grab;
+  touch-action: none;
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+.rowBadge {
+  font-weight: 800;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+}
+
+.rowCode {
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--line) 55%, var(--accent));
+  color: color-mix(in oklab, var(--text) 80%, var(--accent));
+}
+
+.rowIndex {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.rowHeadSpacer {
+  flex: 1;
+}
+
+.rowBody {
+  padding: 12px;
+}
+
+.rowSubActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.grid2 {
+  display: grid;
+  gap: 10px;
+}
+
+@media (min-width: 720px) {
+  .grid2 {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+}
+
+.encoreLabel {
+  font-weight: 900;
+  font-size: 18px;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+
+.libraryTable {
+  display: grid;
+  gap: 8px;
+}
+
+.libraryHead {
+  display: none;
+  grid-template-columns: 1.6fr 1.2fr 1.8fr 2fr;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  font-weight: 800;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+
+.libraryRow {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+@media (min-width: 820px) {
+  .libraryHead {
+    display: grid;
+  }
+  .libraryRow {
+    grid-template-columns: 1.6fr 1.2fr 1.8fr 2fr;
+    align-items: start;
+  }
+}
+
+.libraryCellStrong {
+  font-weight: 900;
+}
+
+.libraryCellMuted {
+  color: var(--muted);
+}
+
+.libraryCellLink a {
+  word-break: break-all;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+}
+
+.overlayBackdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(12, 14, 16, 0.55);
+}
+
+.overlayPanel {
+  position: relative;
+  width: min(900px, calc(100vw - 24px));
+  max-height: min(760px, calc(100vh - 24px));
+  overflow: auto;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: #ffffff;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
+}
+
+.overlayHead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+}
+
+.overlayTitle {
+  font-weight: 900;
+}
+
+.overlayBody {
+  padding: 14px;
+}
+
+.pickerList {
+  display: grid;
+  gap: 8px;
+}
+
+.pickerItem {
+  text-align: left;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 14px;
+  padding: 10px 12px;
+}
+
+.pickerTitle {
+  font-weight: 900;
+}
+
+.pickerMeta {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 16px;
+}
+
+.outputBox {
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.9);
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-x: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+    monospace;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.sharePreview {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.78);
+  padding: 12px;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.shareImageRoot {
+  width: 980px;
+  background: #ffffff;
+  color: #111111;
+  padding: 40px 44px;
+}
+
+.shareImageTitle {
+  font-weight: 900;
+  font-size: 38px;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  margin-bottom: 22px;
+}
+
+.shareImageList {
+  display: grid;
+  gap: 14px;
+}
+
+.shareImageRow {
+  border-bottom: 1px solid rgba(17, 17, 17, 0.08);
+  padding-bottom: 14px;
+}
+
+.shareImageRowMain {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: baseline;
+  font-size: 24px;
+  line-height: 1.25;
+}
+
+.shareImageCode {
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  color: #0f766e;
+}
+
+.shareImageSongTitle {
+  font-weight: 900;
+}
+
+.shareImageSongArtist {
+  font-weight: 700;
+  color: rgba(17, 17, 17, 0.72);
+}
+
+.shareImageBadge {
+  font-weight: 900;
+  color: rgba(17, 17, 17, 0.8);
+}
+
+.shareImageSubText {
+  margin-top: 8px;
+  font-size: 18px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  color: rgba(17, 17, 17, 0.78);
+}
+
+.shareImageEncore {
+  padding: 18px 0;
+  border-top: 2px solid rgba(17, 17, 17, 0.14);
+  border-bottom: 2px solid rgba(17, 17, 17, 0.14);
+}
+
+.shareImageEncoreLabel {
+  font-weight: 900;
+  font-size: 26px;
+  letter-spacing: 0.08em;
+}
