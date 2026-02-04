@@ -192,6 +192,16 @@
   color: var(--muted);
 }
 
+.setlistMeta {
+  display: grid;
+  gap: 12px;
+  align-items: end;
+}
+
+.panel--setlistMeta .field {
+  margin-bottom: 0;
+}
+
 .rowActions {
   display: flex;
   gap: 8px;
@@ -396,6 +406,27 @@
   grid-template-columns: 1fr;
 }
 
+@media (min-width: 720px) {
+  .setlistMeta {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .setlistMeta .counts {
+    justify-self: end;
+    text-align: right;
+  }
+}
+
+@media (min-width: 680px) and (max-width: 879px) {
+  .songEditorRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .songEditorRow .field:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
 @media (min-width: 880px) {
   .songEditorGrid {
     align-items: start;
@@ -409,6 +440,31 @@
   .grid2 {
     grid-template-columns: 1fr 1fr;
     align-items: start;
+  }
+}
+
+@media (max-width: 900px) {
+  .rowSummary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .rowHead {
+    gap: 8px;
+  }
+
+  .rowHeadSpacer {
+    flex-basis: 100%;
+    height: 0;
+  }
+
+  .rowSummary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .rowSummaryValue {
+    white-space: normal;
   }
 }
 

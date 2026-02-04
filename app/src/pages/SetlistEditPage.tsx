@@ -353,18 +353,20 @@ export default function SetlistEditPage() {
         </div>
       </div>
 
-      <div className="panel">
-        <label className="field">
-          <div className="fieldLabel">タイトル</div>
-          <input
-            className="textInput"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="タイトル"
-          />
-        </label>
-        <div className="counts">
-          曲数: 本編 {counts.main} / アンコール {counts.encore} / 合計 {counts.total}
+      <div className="panel panel--setlistMeta">
+        <div className="setlistMeta">
+          <label className="field">
+            <div className="fieldLabel">タイトル</div>
+            <input
+              className="textInput"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="タイトル"
+            />
+          </label>
+          <div className="counts">
+            曲数: 本編 {counts.main} / アンコール {counts.encore} / 合計 {counts.total}
+          </div>
         </div>
       </div>
 
