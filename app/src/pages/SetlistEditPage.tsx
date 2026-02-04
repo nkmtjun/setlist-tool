@@ -205,20 +205,41 @@ export default function SetlistEditPage() {
     setExpandedId(item.id)
   }
 
+  async function confirmDeleteItem(itemId: string) {
+    const ok = window.confirm('この行を削除しますか？')
+    if (ok) {
+      setItems((prev) => prev.filter((x) => x.id !== itemId))
+      setExpandedId((prev) => (prev === itemId ? null : prev))
+    }
+  }
+
   function renderSummary(it: SetlistItem) {
     if (it.type === 'SONG') {
+      const title = it.title?.trim() || '（未入力）'
+      const artist = it.artist?.trim() || '（未入力）'
+      const memoFull = (it.memo ?? '').replace(/\r\n/g, '\n').trim() || '（未入力）'
+      const memo = firstLine(it.memo) || '（未入力）'
       return (
         <div className="rowSummary rowSummary--song">
           <span className="rowSummaryLabel">曲名</span>
           <span className="rowSummaryLabel">アーティスト</span>
           <span className="rowSummaryLabel">メモ</span>
-          <span className="rowSummaryValue">{it.title?.trim() || '（未入力）'}</span>
-          <span className="rowSummaryValue">{it.artist?.trim() || '（未入力）'}</span>
-          <span className="rowSummaryValue">{firstLine(it.memo) || '（未入力）'}</span>
+          <span className="rowSummaryValue" title={title}>
+            {title}
+          </span>
+          <span className="rowSummaryValue" title={artist}>
+            {artist}
+          </span>
+          <span className="rowSummaryValue" title={memoFull}>
+            {memo}
+          </span>
         </div>
       )
     }
     if (it.type === 'NOTE') {
+      const label = it.label?.trim() || '（未入力）'
+      const textFull = (it.text ?? '').replace(/\r\n/g, '\n').trim() || '（未入力）'
+      const text = firstLine(it.text) || '（未入力）'
       return (
         <div className="rowSummary rowSummary--note">
           <span className="rowSummaryLabel">ラベル</span>
@@ -226,14 +247,21 @@ export default function SetlistEditPage() {
           <span className="rowSummaryLabel rowSummaryPlaceholder" aria-hidden="true">
             _
           </span>
-          <span className="rowSummaryValue">{it.label?.trim() || '（未入力）'}</span>
-          <span className="rowSummaryValue">{firstLine(it.text) || '（未入力）'}</span>
+          <span className="rowSummaryValue" title={label}>
+            {label}
+          </span>
+          <span className="rowSummaryValue" title={textFull}>
+            {text}
+          </span>
           <span className="rowSummaryValue rowSummaryPlaceholder" aria-hidden="true">
             _
           </span>
         </div>
       )
     }
+
+    const memoFull = (it.memo ?? '').replace(/\r\n/g, '\n').trim() || '（未入力）'
+    const memo = firstLine(it.memo) || '（未入力）'
     return (
       <div className="rowSummary rowSummary--encore">
         <span className="rowSummaryLabel">Encoreメモ</span>
@@ -243,7 +271,9 @@ export default function SetlistEditPage() {
         <span className="rowSummaryLabel rowSummaryPlaceholder" aria-hidden="true">
           _
         </span>
-        <span className="rowSummaryValue">{firstLine(it.memo) || '（未入力）'}</span>
+        <span className="rowSummaryValue" title={memoFull}>
+          {memo}
+        </span>
         <span className="rowSummaryValue rowSummaryPlaceholder" aria-hidden="true">
           _
         </span>
@@ -409,10 +439,10 @@ export default function SetlistEditPage() {
                         </button>
                         <button
                           type="button"
-                          className="iconButton iconButton--compact"
+                          className="iconButton iconButton--compact iconButton--danger"
                           title="行削除"
                           aria-label="行削除"
-                          onClick={() => setItems((prev) => prev.filter((x) => x.id !== it.id))}
+                          onClick={() => confirmDeleteItem(it.id)}
                         >
                           <IconTrash />
                         </button>

@@ -508,6 +508,12 @@
   transform: translateY(-1px);
 }
 
+.iconButton--danger,
+.dangerButton {
+  background: #b42318;
+  color: #ffffff;
+}
+
 .overlay {
   position: fixed;
   inset: 0;

@@ -37,7 +37,8 @@ export default function HomePage() {
   }
 
   async function onDelete(s: Setlist) {
-    const ok = window.confirm(`「${s.title}」を削除しますか？`)
+    const title = s.title || '（無題）'
+    const ok = window.confirm(`「${title}」を削除しますか？`)
     if (!ok) return
     await deleteSetlist(s.id)
   }
@@ -101,7 +102,7 @@ export default function HomePage() {
                 <button type="button" onClick={() => onDuplicate(s)}>
                   複製
                 </button>
-                <button type="button" onClick={() => onDelete(s)}>
+                <button type="button" className="dangerButton" onClick={() => onDelete(s)}>
                   削除
                 </button>
               </div>

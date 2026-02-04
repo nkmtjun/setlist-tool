@@ -212,7 +212,7 @@ export default function LibraryPage() {
         <div className="pageActions">
           <button
             type="button"
-            className="iconButton"
+            className="iconButton iconButton--danger"
             title="一括削除"
             aria-label="一括削除"
             onClick={async () => {
@@ -340,7 +340,7 @@ Lemon,米津玄師,キー:+2,https://example.com/lemon
                   </button>
                   <button
                     type="button"
-                    className="iconButton"
+                    className="iconButton iconButton--danger"
                     title="削除"
                     aria-label="削除"
                     onClick={async () => {
