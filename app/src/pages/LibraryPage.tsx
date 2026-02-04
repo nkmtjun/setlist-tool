@@ -3,7 +3,7 @@ import Papa from 'papaparse'
 import { useMemo, useRef, useState } from 'react'
 
 import { db } from '../db/appDb'
-import { bulkAddSongLibraryItems } from '../db/songLibrary'
+import { bulkAddSongLibraryItems, bulkDeleteSongLibraryItems, deleteSongLibraryItem, updateSongLibraryItem } from '../db/songLibrary'
 import type { SongLibraryItem } from '../domain/types'
 import { newId } from '../utils/id'
 import { nowIso } from '../utils/time'
@@ -13,6 +13,46 @@ type ParsedRow = {
   artist?: unknown
   comment?: unknown
   url?: unknown
+}
+
+function IconTrash() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path
+        d="M9 3h6l1 2h4v2H4V5h4l1-2Zm1 7h2v8h-2v-8Zm4 0h2v8h-2v-8ZM6 7h12l-1 14H7L6 7Z"
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
+
+function IconDownload() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M12 3v9.17l3.59-3.58L17 10l-5 5-5-5 1.41-1.41L11 12.17V3h2Z" fill="currentColor" />
+      <path d="M5 19h14v2H5v-2Z" fill="currentColor" />
+    </svg>
+  )
+}
+
+function IconUpload() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M12 21V11.83l-3.59 3.58L7 14l5-5 5 5-1.41 1.41L13 11.83V21h-1Z" fill="currentColor" />
+      <path d="M5 3h14v2H5V3Z" fill="currentColor" />
+    </svg>
+  )
+}
+
+function IconEdit() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path
+        d="M3 17.25V21h3.75L17.8 9.94l-3.75-3.75L3 17.25Zm14.71-9.04a1.003 1.003 0 0 0 0-1.42l-1.5-1.5a1.003 1.003 0 0 0-1.42 0l-1.12 1.12 3.75 3.75 1.29-1.29Z"
+        fill="currentColor"
+      />
+    </svg>
+  )
 }
 
 function asString(value: unknown): string {
@@ -25,6 +65,13 @@ function normalizeKey(title: string, artist: string): string {
 
 export default function LibraryPage() {
   const [query, setQuery] = useState('')
+  const [editingItem, setEditingItem] = useState<SongLibraryItem | null>(null)
+  const [editForm, setEditForm] = useState({
+    title: '',
+    artist: '',
+    comment: '',
+    url: '',
+  })
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const items = useLiveQuery(
@@ -41,6 +88,65 @@ export default function LibraryPage() {
       return hay.includes(q)
     })
   }, [items, query])
+
+  function openEdit(item: SongLibraryItem) {
+    setEditingItem(item)
+    setEditForm({
+      title: item.title,
+      artist: item.artist,
+      comment: item.comment,
+      url: item.url,
+    })
+  }
+
+  function closeEdit() {
+    setEditingItem(null)
+  }
+
+  async function onSaveEdit() {
+    if (!editingItem) return
+    const title = editForm.title.trim()
+    if (!title) {
+      window.alert('曲名は必須です。')
+      return
+    }
+    await updateSongLibraryItem(editingItem.id, {
+      title,
+      artist: editForm.artist.trim(),
+      comment: editForm.comment.trim(),
+      url: editForm.url.trim(),
+    })
+    setEditingItem(null)
+  }
+
+  function downloadCsvFile(filename: string, csv: string) {
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.download = filename
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    URL.revokeObjectURL(link.href)
+  }
+
+  async function onExportCsv() {
+    const currentItems = items ?? []
+    if (currentItems.length === 0) {
+      window.alert('エクスポートできる曲がありません。')
+      return
+    }
+    const csv = Papa.unparse(
+      currentItems.map((it) => ({
+        title: it.title,
+        artist: it.artist,
+        comment: it.comment,
+        url: it.url,
+      })),
+      { header: true },
+    )
+    downloadCsvFile(`song-library-${nowIso().slice(0, 10)}.csv`, csv)
+  }
 
   async function onImportCsv(file: File) {
     const raw = (await file.text()).replace(/^\uFEFF/, '')
@@ -96,7 +202,7 @@ export default function LibraryPage() {
     }
 
     await bulkAddSongLibraryItems(toInsert)
-    window.alert(`取り込み完了: ${toInsert.length} 件`) 
+    window.alert(`取り込み完了: ${toInsert.length} 件`)
   }
 
   return (
@@ -104,8 +210,36 @@ export default function LibraryPage() {
       <div className="pageHeader">
         <h1>楽曲ライブラリ</h1>
         <div className="pageActions">
-          <button type="button" onClick={() => fileInputRef.current?.click()}>
-            CSVインポート
+          <button
+            type="button"
+            className="iconButton"
+            title="一括削除"
+            aria-label="一括削除"
+            onClick={async () => {
+              const currentItems = items ?? []
+              if (currentItems.length === 0) {
+                window.alert('削除できる曲がありません。')
+                return
+              }
+              if (!window.confirm(`登録済みの ${currentItems.length} 件を一括削除します。よろしいですか？`)) {
+                return
+              }
+              await bulkDeleteSongLibraryItems(currentItems.map((it) => it.id))
+            }}
+          >
+            <IconTrash />
+          </button>
+          <button type="button" className="iconButton" title="CSV一括エクスポート" aria-label="CSV一括エクスポート" onClick={onExportCsv}>
+            <IconDownload />
+          </button>
+          <button
+            type="button"
+            className="iconButton"
+            title="CSVインポート"
+            aria-label="CSVインポート"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <IconUpload />
           </button>
           <input
             ref={fileInputRef}
@@ -152,6 +286,12 @@ export default function LibraryPage() {
 Lemon,米津玄師,キー:+2,https://example.com/lemon
 シーソーゲーム,Mr.Children,,`}</pre>
           </div>
+          <div className="field">
+            <div className="fieldLabel">テスト用CSV</div>
+            <a href="/test-library.csv" download>
+              test-library.csv をダウンロード
+            </a>
+          </div>
         </div>
       </details>
 
@@ -178,6 +318,7 @@ Lemon,米津玄師,キー:+2,https://example.com/lemon
               <div>アーティスト</div>
               <div>コメント</div>
               <div>URL</div>
+              <div>操作</div>
             </div>
             {filtered.map((it) => (
               <div key={it.id} className="libraryRow">
@@ -193,11 +334,84 @@ Lemon,米津玄師,キー:+2,https://example.com/lemon
                     <span className="libraryCellMuted">-</span>
                   )}
                 </div>
+                <div className="libraryActions">
+                  <button type="button" className="iconButton" title="編集" aria-label="編集" onClick={() => openEdit(it)}>
+                    <IconEdit />
+                  </button>
+                  <button
+                    type="button"
+                    className="iconButton"
+                    title="削除"
+                    aria-label="削除"
+                    onClick={async () => {
+                      if (!window.confirm('この曲を削除しますか？')) return
+                      await deleteSongLibraryItem(it.id)
+                    }}
+                  >
+                    <IconTrash />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
         </div>
       )}
+      {editingItem ? (
+        <div className="overlay" role="dialog" aria-modal="true">
+          <div className="overlayBackdrop" onClick={closeEdit} />
+          <div className="overlayPanel">
+            <div className="overlayHead">
+              <div className="overlayTitle">楽曲情報を編集</div>
+              <button type="button" onClick={closeEdit}>
+                閉じる
+              </button>
+            </div>
+            <div className="overlayBody">
+              <label className="field">
+                <div className="fieldLabel">曲名（必須）</div>
+                <input
+                  className="textInput"
+                  value={editForm.title}
+                  onChange={(e) => setEditForm((prev) => ({ ...prev, title: e.target.value }))}
+                />
+              </label>
+              <label className="field">
+                <div className="fieldLabel">アーティスト</div>
+                <input
+                  className="textInput"
+                  value={editForm.artist}
+                  onChange={(e) => setEditForm((prev) => ({ ...prev, artist: e.target.value }))}
+                />
+              </label>
+              <label className="field">
+                <div className="fieldLabel">コメント</div>
+                <textarea
+                  className="textArea"
+                  rows={3}
+                  value={editForm.comment}
+                  onChange={(e) => setEditForm((prev) => ({ ...prev, comment: e.target.value }))}
+                />
+              </label>
+              <label className="field">
+                <div className="fieldLabel">URL</div>
+                <input
+                  className="textInput"
+                  value={editForm.url}
+                  onChange={(e) => setEditForm((prev) => ({ ...prev, url: e.target.value }))}
+                />
+              </label>
+              <div className="rowActions">
+                <button type="button" onClick={onSaveEdit}>
+                  保存
+                </button>
+                <button type="button" onClick={closeEdit}>
+                  キャンセル
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   )
 }

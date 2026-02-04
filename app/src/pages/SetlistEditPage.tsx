@@ -19,6 +19,95 @@ import { getSongCodeMap, getSongCounts } from '../domain/setlistCalc'
 import type { SetlistItem } from '../domain/types'
 import SongPicker from '../components/SongPicker'
 
+function IconPlus() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6V5Z" fill="currentColor" />
+    </svg>
+  )
+}
+
+function IconNote() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path
+        d="M6 4h8l4 4v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm7 1.5V9h3.5L13 5.5ZM8 12h8v2H8v-2Zm0 4h6v2H8v-2Z"
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
+
+function IconEncore() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path
+        d="M4 4h16v4h-2V6H6v2H4V4Zm0 12h2v2h12v-2h2v4H4v-4Zm7-9h2v10h-2V7Zm-4 4h10v2H7v-2Z"
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
+
+function IconUp() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M12 5l6 6-1.41 1.41L13 8.83V19h-2V8.83L7.41 12.41 6 11l6-6Z" fill="currentColor" />
+    </svg>
+  )
+}
+
+function IconDown() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M12 19l-6-6 1.41-1.41L11 15.17V5h2v10.17l3.59-3.58L18 13l-6 6Z" fill="currentColor" />
+    </svg>
+  )
+}
+
+function IconTrash() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path
+        d="M9 3h6l1 2h4v2H4V5h4l1-2Zm1 7h2v8h-2v-8Zm4 0h2v8h-2v-8ZM6 7h12l-1 14H7L6 7Z"
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
+
+function IconLibrary() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path
+        d="M4 5h3v14H4V5Zm5-2h3v16H9V3Zm5 4h3v12h-3V7Zm5 2h3v10h-3V9Z"
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
+
+function IconChevronDown() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41Z" fill="currentColor" />
+    </svg>
+  )
+}
+
+function IconChevronUp() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="m7.41 15.41 4.59-4.58 4.59 4.58L18 14l-6-6-6 6 1.41 1.41Z" fill="currentColor" />
+    </svg>
+  )
+}
+
+function firstLine(text?: string | null): string {
+  if (!text) return ''
+  return text.replace(/\r\n/g, '\n').split('\n')[0]?.trim() ?? ''
+}
+
 export default function SetlistEditPage() {
   const navigate = useNavigate()
   const { setlistId } = useParams()
@@ -34,6 +123,7 @@ export default function SetlistEditPage() {
 
   const [title, setTitle] = useState('')
   const [items, setItems] = useState<SetlistItem[]>([])
+  const [expandedId, setExpandedId] = useState<string | null>(null)
   const [pickerOpen, setPickerOpen] = useState(false)
   const [pickerTargetId, setPickerTargetId] = useState<string | null>(null)
   const initializedRef = useRef(false)
@@ -84,6 +174,55 @@ export default function SetlistEditPage() {
       if (to < 0 || to >= prev.length) return prev
       return arrayMove(prev, from, to)
     })
+  }
+
+  function addItem(type: SetlistItem['type']) {
+    const item = createSetlistItem(type)
+    setItems((prev) => [...prev, item])
+    setExpandedId(item.id)
+  }
+
+  function renderSummary(it: SetlistItem) {
+    if (it.type === 'SONG') {
+      return (
+        <div className="rowSummary">
+          <div className="rowSummaryField">
+            <span className="rowSummaryLabel">曲名</span>
+            <span className="rowSummaryValue">{it.title?.trim() || '（未入力）'}</span>
+          </div>
+          <div className="rowSummaryField">
+            <span className="rowSummaryLabel">アーティスト</span>
+            <span className="rowSummaryValue">{it.artist?.trim() || '（未入力）'}</span>
+          </div>
+          <div className="rowSummaryField">
+            <span className="rowSummaryLabel">メモ</span>
+            <span className="rowSummaryValue">{firstLine(it.memo) || '（未入力）'}</span>
+          </div>
+        </div>
+      )
+    }
+    if (it.type === 'NOTE') {
+      return (
+        <div className="rowSummary">
+          <div className="rowSummaryField">
+            <span className="rowSummaryLabel">ラベル</span>
+            <span className="rowSummaryValue">{it.label?.trim() || '（未入力）'}</span>
+          </div>
+          <div className="rowSummaryField rowSummaryFieldWide">
+            <span className="rowSummaryLabel">本文</span>
+            <span className="rowSummaryValue">{firstLine(it.text) || '（未入力）'}</span>
+          </div>
+        </div>
+      )
+    }
+    return (
+      <div className="rowSummary">
+        <div className="rowSummaryField rowSummaryFieldWide">
+          <span className="rowSummaryLabel">Encoreメモ</span>
+          <span className="rowSummaryValue">{firstLine(it.memo) || '（未入力）'}</span>
+        </div>
+      </div>
+    )
   }
 
   function onDragEnd(e: DragEndEvent) {
@@ -156,22 +295,34 @@ export default function SetlistEditPage() {
         <div className="rowActions">
           <button
             type="button"
-            onClick={() => setItems((prev) => [...prev, createSetlistItem('SONG')])}
+            className="iconButton iconButton--wide"
+            title="曲追加"
+            aria-label="曲追加"
+            onClick={() => addItem('SONG')}
           >
-            曲追加
+            <IconPlus />
+            <span>曲追加</span>
           </button>
           <button
             type="button"
-            onClick={() => setItems((prev) => [...prev, createSetlistItem('NOTE')])}
+            className="iconButton iconButton--wide"
+            title="NOTE追加"
+            aria-label="NOTE追加"
+            onClick={() => addItem('NOTE')}
           >
-            NOTE追加
+            <IconNote />
+            <span>NOTE追加</span>
           </button>
           <button
             type="button"
             disabled={hasEncore}
-            onClick={() => setItems((prev) => [...prev, createSetlistItem('ENCORE_START')])}
+            className="iconButton iconButton--wide"
+            title="Encore区切り追加"
+            aria-label="Encore区切り追加"
+            onClick={() => addItem('ENCORE_START')}
           >
-            Encore区切り追加
+            <IconEncore />
+            <span>Encore区切り追加</span>
           </button>
         </div>
 
@@ -185,46 +336,74 @@ export default function SetlistEditPage() {
                   <SortableRow
                     key={it.id}
                     id={it.id}
+                    isExpanded={expandedId === it.id}
                     head={
                       <>
+                        <button
+                          type="button"
+                          className="iconButton iconButton--compact"
+                          title={expandedId === it.id ? '折りたたむ' : '展開する'}
+                          aria-label={expandedId === it.id ? '折りたたむ' : '展開する'}
+                          onClick={() => setExpandedId((prev) => (prev === it.id ? null : it.id))}
+                        >
+                          {expandedId === it.id ? <IconChevronUp /> : <IconChevronDown />}
+                        </button>
                         <div className="rowBadge">{it.type}</div>
                         {it.type === 'SONG' ? <div className="rowCode">{codeMap[it.id] ?? ''}</div> : null}
                         <div className="rowIndex">#{idx + 1}</div>
+                        {renderSummary(it)}
                         <div className="rowHeadSpacer" />
-                        <button type="button" disabled={idx === 0} onClick={() => moveIndex(idx, idx - 1)}>
-                          上へ
+                        <button
+                          type="button"
+                          className="iconButton iconButton--compact"
+                          title="上へ"
+                          aria-label="上へ"
+                          disabled={idx === 0}
+                          onClick={() => moveIndex(idx, idx - 1)}
+                        >
+                          <IconUp />
                         </button>
                         <button
                           type="button"
+                          className="iconButton iconButton--compact"
+                          title="下へ"
+                          aria-label="下へ"
                           disabled={idx === items.length - 1}
                           onClick={() => moveIndex(idx, idx + 1)}
                         >
-                          下へ
+                          <IconDown />
                         </button>
                         <button
                           type="button"
+                          className="iconButton iconButton--compact"
+                          title="行削除"
+                          aria-label="行削除"
                           onClick={() => setItems((prev) => prev.filter((x) => x.id !== it.id))}
                         >
-                          行削除
+                          <IconTrash />
                         </button>
                       </>
                     }
                   >
-                    {it.type === 'SONG' ? (
-                      <div className="rowBody">
+                    {expandedId === it.id && it.type === 'SONG' ? (
+                      <div className="rowBody songEditorBody">
                         <div className="rowSubActions">
                           <button
                             type="button"
+                            className="iconButton iconButton--wide"
+                            title="ライブラリから選択"
+                            aria-label="ライブラリから選択"
                             onClick={() => {
                               setPickerTargetId(it.id)
                               setPickerOpen(true)
                             }}
                             disabled={(libraryItems ?? []).length === 0}
                           >
-                            ライブラリから選択
+                            <IconLibrary />
+                            <span>ライブラリから選択</span>
                           </button>
                         </div>
-                        <div className="grid2">
+                        <div className="songEditorGrid songEditorRow">
                           <label className="field">
                             <div className="fieldLabel">曲名</div>
                             <input
@@ -253,26 +432,26 @@ export default function SetlistEditPage() {
                               }
                             />
                           </label>
+                          <label className="field">
+                            <div className="fieldLabel">メモ（改行可）</div>
+                            <textarea
+                              className="textArea"
+                              rows={2}
+                              value={it.memo ?? ''}
+                              onChange={(e) =>
+                                setItems((prev) =>
+                                  prev.map((x) =>
+                                    x.id === it.id && x.type === 'SONG' ? { ...x, memo: e.target.value } : x,
+                                  ),
+                                )
+                              }
+                            />
+                          </label>
                         </div>
-                        <label className="field">
-                          <div className="fieldLabel">メモ（改行可）</div>
-                          <textarea
-                            className="textArea"
-                            rows={3}
-                            value={it.memo ?? ''}
-                            onChange={(e) =>
-                              setItems((prev) =>
-                                prev.map((x) =>
-                                  x.id === it.id && x.type === 'SONG' ? { ...x, memo: e.target.value } : x,
-                                ),
-                              )
-                            }
-                          />
-                        </label>
                       </div>
                     ) : null}
 
-                    {it.type === 'NOTE' ? (
+                    {expandedId === it.id && it.type === 'NOTE' ? (
                       <div className="rowBody">
                         <label className="field">
                           <div className="fieldLabel">ラベル</div>
@@ -307,7 +486,7 @@ export default function SetlistEditPage() {
                       </div>
                     ) : null}
 
-                    {it.type === 'ENCORE_START' ? (
+                    {expandedId === it.id && it.type === 'ENCORE_START' ? (
                       <div className="rowBody">
                         <div className="encoreLabel">Encore</div>
                         <label className="field">
@@ -350,6 +529,7 @@ export default function SetlistEditPage() {
           setItems((prev) =>
             prev.map((x) => (x.id === targetId && x.type === 'SONG' ? { ...x, title: song.title, artist: song.artist } : x)),
           )
+          setExpandedId(targetId)
           setPickerOpen(false)
           setPickerTargetId(null)
         }}
@@ -358,7 +538,7 @@ export default function SetlistEditPage() {
   )
 }
 
-function SortableRow(props: { id: string; head: ReactNode; children: ReactNode }) {
+function SortableRow(props: { id: string; head: ReactNode; children: ReactNode; isExpanded: boolean }) {
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
     id: props.id,
   })
@@ -370,7 +550,7 @@ function SortableRow(props: { id: string; head: ReactNode; children: ReactNode }
   }
 
   return (
-    <div ref={setNodeRef} style={style} className="row">
+    <div ref={setNodeRef} style={style} className={`row${props.isExpanded ? ' rowExpanded' : ' rowCollapsed'}`}>
       <div className="rowHead">
         <button
           ref={setActivatorNodeRef}

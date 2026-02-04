@@ -35,3 +35,30 @@ export async function addSongLibraryItem(input: {
 export async function bulkAddSongLibraryItems(items: SongLibraryItem[]): Promise<void> {
   await db.songLibrary.bulkAdd(items)
 }
+
+export async function updateSongLibraryItem(
+  id: string,
+  input: {
+    title: string
+    artist?: string
+    comment?: string
+    url?: string
+  },
+): Promise<void> {
+  const t = nowIso()
+  await db.songLibrary.update(id, {
+    title: input.title,
+    artist: input.artist ?? '',
+    comment: input.comment ?? '',
+    url: input.url ?? '',
+    updatedAt: t,
+  })
+}
+
+export async function deleteSongLibraryItem(id: string): Promise<void> {
+  await db.songLibrary.delete(id)
+}
+
+export async function bulkDeleteSongLibraryItems(ids: string[]): Promise<void> {
+  await db.songLibrary.bulkDelete(ids)
+}
