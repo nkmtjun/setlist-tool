@@ -232,6 +232,12 @@
   background: color-mix(in oklab, var(--surface-container) 86%, var(--accent));
   cursor: grab;
   touch-action: none;
+  width: 54px;
+  min-width: 54px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 54px;
 }
 
 .dragHandle:active {
@@ -252,6 +258,8 @@
   justify-content: center;
   gap: 6px;
   min-width: 76px;
+  width: 76px;
+  flex: 0 0 76px;
 }
 
 .rowBadge svg {
@@ -274,6 +282,7 @@
   min-width: 54px;
   display: inline-flex;
   justify-content: center;
+  flex: 0 0 54px;
 }
 
 .rowCode--placeholder {
@@ -287,6 +296,7 @@
   align-self: flex-start;
   width: 34px;
   text-align: center;
+  flex: 0 0 34px;
 }
 
 .rowHeadSpacer {
@@ -300,6 +310,7 @@
   grid-template-columns: repeat(3, minmax(120px, 1fr));
   align-items: start;
   min-width: 0;
+  flex: 1 1 0;
 }
 
 .rowSummaryField {
