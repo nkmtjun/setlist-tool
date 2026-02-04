@@ -247,6 +247,16 @@
   background: var(--surface-container);
   line-height: 1.2;
   align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 76px;
+}
+
+.rowBadge svg {
+  width: 16px;
+  height: 16px;
 }
 
 .rowCode {
@@ -260,6 +270,14 @@
   background: var(--surface-container);
   line-height: 1.2;
   align-self: flex-start;
+  width: 54px;
+  min-width: 54px;
+  display: inline-flex;
+  justify-content: center;
+}
+
+.rowCode--placeholder {
+  visibility: hidden;
 }
 
 .rowIndex {
@@ -267,6 +285,8 @@
   color: var(--muted);
   line-height: 1.2;
   align-self: flex-start;
+  width: 34px;
+  text-align: center;
 }
 
 .rowHeadSpacer {
@@ -298,6 +318,7 @@
   font-weight: 700;
   color: var(--muted);
   line-height: 1.2;
+  min-width: 0;
 }
 
 .rowSummaryValue {
@@ -307,6 +328,16 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.rowSummaryPlaceholder {
+  visibility: hidden;
+  user-select: none;
+}
+
+.rowSummary--song {
+  grid-template-rows: auto auto;
 }
 
 .rowCollapsed .rowHead {
@@ -318,24 +349,9 @@
   display: none;
 }
 
-@media (max-width: 960px) {
-  .rowSummary {
-    grid-template-columns: 1fr 1fr;
-  }
-  .rowSummaryFieldWide {
-    grid-column: span 2;
-  }
-}
-
 @media (max-width: 680px) {
   .rowHead {
     flex-wrap: wrap;
-  }
-  .rowSummary {
-    grid-template-columns: 1fr;
-  }
-  .rowSummaryFieldWide {
-    grid-column: span 1;
   }
 }
 

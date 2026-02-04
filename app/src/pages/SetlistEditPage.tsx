@@ -49,6 +49,14 @@ function IconEncore() {
   )
 }
 
+function IconMusic() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6Z" fill="currentColor" />
+    </svg>
+  )
+}
+
 function IconUp() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -101,6 +109,21 @@ function IconChevronUp() {
       <path d="m7.41 15.41 4.59-4.58 4.59 4.58L18 14l-6-6-6 6 1.41 1.41Z" fill="currentColor" />
     </svg>
   )
+}
+
+function renderTypeBadge(type: SetlistItem['type']) {
+  if (type === 'SONG') {
+    return (
+      <div className="rowBadge rowBadge--song" aria-label="SONG">
+        <IconMusic />
+        <span className="srOnly">SONG</span>
+      </div>
+    )
+  }
+  if (type === 'ENCORE_START') {
+    return <div className="rowBadge">ENCORE</div>
+  }
+  return <div className="rowBadge">NOTE</div>
 }
 
 function firstLine(text?: string | null): string {
@@ -185,42 +208,48 @@ export default function SetlistEditPage() {
   function renderSummary(it: SetlistItem) {
     if (it.type === 'SONG') {
       return (
-        <div className="rowSummary">
-          <div className="rowSummaryField">
-            <span className="rowSummaryLabel">曲名</span>
-            <span className="rowSummaryValue">{it.title?.trim() || '（未入力）'}</span>
-          </div>
-          <div className="rowSummaryField">
-            <span className="rowSummaryLabel">アーティスト</span>
-            <span className="rowSummaryValue">{it.artist?.trim() || '（未入力）'}</span>
-          </div>
-          <div className="rowSummaryField">
-            <span className="rowSummaryLabel">メモ</span>
-            <span className="rowSummaryValue">{firstLine(it.memo) || '（未入力）'}</span>
-          </div>
+        <div className="rowSummary rowSummary--song">
+          <span className="rowSummaryLabel">曲名</span>
+          <span className="rowSummaryLabel">アーティスト</span>
+          <span className="rowSummaryLabel">メモ</span>
+          <span className="rowSummaryValue">{it.title?.trim() || '（未入力）'}</span>
+          <span className="rowSummaryValue">{it.artist?.trim() || '（未入力）'}</span>
+          <span className="rowSummaryValue">{firstLine(it.memo) || '（未入力）'}</span>
         </div>
       )
     }
     if (it.type === 'NOTE') {
       return (
-        <div className="rowSummary">
-          <div className="rowSummaryField">
-            <span className="rowSummaryLabel">ラベル</span>
-            <span className="rowSummaryValue">{it.label?.trim() || '（未入力）'}</span>
-          </div>
-          <div className="rowSummaryField rowSummaryFieldWide">
-            <span className="rowSummaryLabel">本文</span>
-            <span className="rowSummaryValue">{firstLine(it.text) || '（未入力）'}</span>
-          </div>
+        <div className="rowSummary rowSummary--note">
+          <span className="rowSummaryLabel">ラベル</span>
+          <span className="rowSummaryLabel">本文</span>
+          <span className="rowSummaryLabel rowSummaryPlaceholder" aria-hidden="true">
+            _
+          </span>
+          <span className="rowSummaryValue">{it.label?.trim() || '（未入力）'}</span>
+          <span className="rowSummaryValue">{firstLine(it.text) || '（未入力）'}</span>
+          <span className="rowSummaryValue rowSummaryPlaceholder" aria-hidden="true">
+            _
+          </span>
         </div>
       )
     }
     return (
-      <div className="rowSummary">
-        <div className="rowSummaryField rowSummaryFieldWide">
-          <span className="rowSummaryLabel">Encoreメモ</span>
-          <span className="rowSummaryValue">{firstLine(it.memo) || '（未入力）'}</span>
-        </div>
+      <div className="rowSummary rowSummary--encore">
+        <span className="rowSummaryLabel">Encoreメモ</span>
+        <span className="rowSummaryLabel rowSummaryPlaceholder" aria-hidden="true">
+          _
+        </span>
+        <span className="rowSummaryLabel rowSummaryPlaceholder" aria-hidden="true">
+          _
+        </span>
+        <span className="rowSummaryValue">{firstLine(it.memo) || '（未入力）'}</span>
+        <span className="rowSummaryValue rowSummaryPlaceholder" aria-hidden="true">
+          _
+        </span>
+        <span className="rowSummaryValue rowSummaryPlaceholder" aria-hidden="true">
+          _
+        </span>
       </div>
     )
   }
@@ -348,8 +377,13 @@ export default function SetlistEditPage() {
                         >
                           {expandedId === it.id ? <IconChevronUp /> : <IconChevronDown />}
                         </button>
-                        <div className="rowBadge">{it.type}</div>
-                        {it.type === 'SONG' ? <div className="rowCode">{codeMap[it.id] ?? ''}</div> : null}
+                        {renderTypeBadge(it.type)}
+                        <div
+                          className={`rowCode${it.type === 'SONG' ? '' : ' rowCode--placeholder'}`}
+                          aria-hidden={it.type === 'SONG' ? undefined : true}
+                        >
+                          {it.type === 'SONG' ? (codeMap[it.id] ?? '') : 'M00'}
+                        </div>
                         <div className="rowIndex">#{idx + 1}</div>
                         {renderSummary(it)}
                         <div className="rowHeadSpacer" />
