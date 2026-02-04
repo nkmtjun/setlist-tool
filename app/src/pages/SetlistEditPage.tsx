@@ -111,6 +111,18 @@ function IconChevronUp() {
   )
 }
 
+function IconShare() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path
+        d="M14 3h7v7h-2V6.41l-9.29 9.3-1.42-1.42L17.59 5H14V3Z"
+        fill="currentColor"
+      />
+      <path d="M5 5h7v2H7v12h12v-5h2v7H5V5Z" fill="currentColor" />
+    </svg>
+  )
+}
+
 function renderTypeBadge(type: SetlistItem['type']) {
   if (type === 'SONG') {
     return (
@@ -329,8 +341,14 @@ export default function SetlistEditPage() {
       <div className="pageHeader">
         <h1>セットリスト編集</h1>
         <div className="pageActions">
-          <button type="button" onClick={() => navigate(`/share/${setlistId}`)}>
-            出力 / 共有
+          <button
+            type="button"
+            className="iconButton"
+            title="出力 / 共有"
+            aria-label="出力 / 共有"
+            onClick={() => navigate(`/share/${setlistId}`)}
+          >
+            <IconShare />
           </button>
         </div>
       </div>
@@ -354,34 +372,31 @@ export default function SetlistEditPage() {
         <div className="rowActions">
           <button
             type="button"
-            className="iconButton iconButton--wide"
+            className="iconButton"
             title="曲追加"
             aria-label="曲追加"
             onClick={() => addItem('SONG')}
           >
             <IconPlus />
-            <span>曲追加</span>
           </button>
           <button
             type="button"
-            className="iconButton iconButton--wide"
+            className="iconButton"
             title="NOTE追加"
             aria-label="NOTE追加"
             onClick={() => addItem('NOTE')}
           >
             <IconNote />
-            <span>NOTE追加</span>
           </button>
           <button
             type="button"
             disabled={hasEncore}
-            className="iconButton iconButton--wide"
+            className="iconButton"
             title="Encore区切り追加"
             aria-label="Encore区切り追加"
             onClick={() => addItem('ENCORE_START')}
           >
             <IconEncore />
-            <span>Encore区切り追加</span>
           </button>
         </div>
 
@@ -454,7 +469,7 @@ export default function SetlistEditPage() {
                         <div className="rowSubActions">
                           <button
                             type="button"
-                            className="iconButton iconButton--wide"
+                            className="iconButton"
                             title="ライブラリから選択"
                             aria-label="ライブラリから選択"
                             onClick={() => {
@@ -464,7 +479,6 @@ export default function SetlistEditPage() {
                             disabled={(libraryItems ?? []).length === 0}
                           >
                             <IconLibrary />
-                            <span>ライブラリから選択</span>
                           </button>
                         </div>
                         <div className="songEditorGrid songEditorRow">
@@ -624,7 +638,7 @@ function SortableRow(props: { id: string; head: ReactNode; children: ReactNode; 
           {...attributes}
           {...listeners}
         >
-          Move
+          <span aria-hidden="true">⋮⋮</span>
         </button>
         {props.head}
       </div>

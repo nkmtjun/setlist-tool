@@ -29,8 +29,11 @@ function IconTrash() {
 function IconDownload() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path d="M12 3v9.17l3.59-3.58L17 10l-5 5-5-5 1.41-1.41L11 12.17V3h2Z" fill="currentColor" />
-      <path d="M5 19h14v2H5v-2Z" fill="currentColor" />
+      <path
+        d="M4 4h11a2 2 0 0 1 2 2v4h-2V6H4v12h11v-4h2v4a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"
+        fill="currentColor"
+      />
+      <path d="M12 8v3H4v2h8v3l4-4-4-4Z" fill="currentColor" />
     </svg>
   )
 }
@@ -38,8 +41,11 @@ function IconDownload() {
 function IconUpload() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path d="M12 21V11.83l-3.59 3.58L7 14l5-5 5 5-1.41 1.41L13 11.83V21h-1Z" fill="currentColor" />
-      <path d="M5 3h14v2H5V3Z" fill="currentColor" />
+      <path
+        d="M4 4h11a2 2 0 0 1 2 2v4h-2V6H4v12h11v-4h2v4a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"
+        fill="currentColor"
+      />
+      <path d="M12 8 8 12l4 4v-3h8v-2h-8V8Z" fill="currentColor" />
     </svg>
   )
 }
@@ -51,6 +57,22 @@ function IconEdit() {
         d="M3 17.25V21h3.75L17.8 9.94l-3.75-3.75L3 17.25Zm14.71-9.04a1.003 1.003 0 0 0 0-1.42l-1.5-1.5a1.003 1.003 0 0 0-1.42 0l-1.12 1.12 3.75 3.75 1.29-1.29Z"
         fill="currentColor"
       />
+    </svg>
+  )
+}
+
+function IconClose() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M18.3 5.71 12 12l6.3 6.29-1.41 1.42L10.59 13.4 4.3 19.71 2.89 18.29 9.17 12 2.89 5.71 4.3 4.29 10.59 10.6 16.89 4.29l1.41 1.42Z" fill="currentColor" />
+    </svg>
+  )
+}
+
+function IconCheck() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="m9 16.17-3.88-3.88L3.7 13.7 9 19l12-12-1.41-1.41L9 16.17Z" fill="currentColor" />
     </svg>
   )
 }
@@ -362,8 +384,8 @@ Lemon,米津玄師,キー:+2,https://example.com/lemon
           <div className="overlayPanel">
             <div className="overlayHead">
               <div className="overlayTitle">楽曲情報を編集</div>
-              <button type="button" onClick={closeEdit}>
-                閉じる
+              <button type="button" className="iconButton" title="閉じる" aria-label="閉じる" onClick={closeEdit}>
+                <IconClose />
               </button>
             </div>
             <div className="overlayBody">
@@ -401,11 +423,11 @@ Lemon,米津玄師,キー:+2,https://example.com/lemon
                 />
               </label>
               <div className="rowActions">
-                <button type="button" onClick={onSaveEdit}>
-                  保存
+                <button type="button" className="iconButton" title="保存" aria-label="保存" onClick={onSaveEdit}>
+                  <IconCheck />
                 </button>
-                <button type="button" onClick={closeEdit}>
-                  キャンセル
+                <button type="button" className="iconButton" title="キャンセル" aria-label="キャンセル" onClick={closeEdit}>
+                  <IconClose />
                 </button>
               </div>
             </div>

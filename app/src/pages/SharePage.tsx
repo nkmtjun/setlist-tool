@@ -10,6 +10,52 @@ import { downloadJsonFile, parseSetlistExportV1, readTextFile, safeFileName, toS
 import ShareImageLayout from '../components/ShareImageLayout'
 import { toPng } from 'html-to-image'
 
+function IconCopy() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path
+        d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1Zm4 4H8a2 2 0 0 0-2 2v16h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 18H8V7h12v16Z"
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
+
+function IconOut() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path
+        d="M4 4h11a2 2 0 0 1 2 2v4h-2V6H4v12h11v-4h2v4a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"
+        fill="currentColor"
+      />
+      <path d="M12 8v3H4v2h8v3l4-4-4-4Z" fill="currentColor" />
+    </svg>
+  )
+}
+
+function IconIn() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path
+        d="M4 4h11a2 2 0 0 1 2 2v4h-2V6H4v12h11v-4h2v4a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"
+        fill="currentColor"
+      />
+      <path d="M12 8 8 12l4 4v-3h8v-2h-8V8Z" fill="currentColor" />
+    </svg>
+  )
+}
+
+function IconImage() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path
+        d="M21 5v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Zm-2 0H5v10.5l3.5-3.5 2.5 2.5 3.5-3.5L19 16V5Zm-9 4a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
+
 export default function SharePage() {
   const navigate = useNavigate()
   const { setlistId } = useParams()
@@ -68,6 +114,9 @@ export default function SharePage() {
           <div className="pageActions">
             <button
               type="button"
+              className="iconButton"
+              title="コピー"
+              aria-label="コピー"
               onClick={async () => {
                 try {
                   await navigator.clipboard.writeText(text)
@@ -77,7 +126,7 @@ export default function SharePage() {
                 }
               }}
             >
-              コピー
+              <IconCopy />
             </button>
           </div>
         </div>
@@ -90,16 +139,25 @@ export default function SharePage() {
           <div className="pageActions">
             <button
               type="button"
+              className="iconButton"
+              title="エクスポート"
+              aria-label="エクスポート"
               onClick={() => {
                 const exported = toSetlistExportV1(setlist)
                 const name = safeFileName(setlist.title)
                 downloadJsonFile(`${name || 'setlist'}.json`, exported)
               }}
             >
-              エクスポート
+              <IconOut />
             </button>
-            <button type="button" onClick={() => importInputRef.current?.click()}>
-              インポート
+            <button
+              type="button"
+              className="iconButton"
+              title="インポート"
+              aria-label="インポート"
+              onClick={() => importInputRef.current?.click()}
+            >
+              <IconIn />
             </button>
             <input
               ref={importInputRef}
@@ -133,6 +191,9 @@ export default function SharePage() {
           <div className="pageActions">
             <button
               type="button"
+              className="iconButton"
+              title="PNG出力"
+              aria-label="PNG出力"
               onClick={async () => {
                 try {
                   const el = imageRef.current
@@ -149,7 +210,7 @@ export default function SharePage() {
                 }
               }}
             >
-              PNG出力
+              <IconImage />
             </button>
           </div>
         </div>
