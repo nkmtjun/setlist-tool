@@ -123,6 +123,14 @@ function IconShare() {
   )
 }
 
+function IconMore() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M10 6a2 2 0 1 1 4 0 2 2 0 0 1-4 0Zm0 6a2 2 0 1 1 4 0 2 2 0 0 1-4 0Zm0 6a2 2 0 1 1 4 0 2 2 0 0 1-4 0Z" fill="currentColor" />
+    </svg>
+  )
+}
+
 function renderTypeBadge(type: SetlistItem['type']) {
   if (type === 'SONG') {
     return (
@@ -214,6 +222,16 @@ export default function SetlistEditPage() {
   function addItem(type: SetlistItem['type']) {
     const item = createSetlistItem(type)
     setItems((prev) => [...prev, item])
+    setExpandedId(item.id)
+  }
+
+  function addItemBelow(index: number, type: SetlistItem['type']) {
+    const item = createSetlistItem(type)
+    setItems((prev) => {
+      const next = [...prev]
+      next.splice(index + 1, 0, item)
+      return next
+    })
     setExpandedId(item.id)
   }
 
@@ -369,7 +387,7 @@ export default function SetlistEditPage() {
       </div>
 
       <div className="panel">
-        <div className="rowActions">
+        <div className="rowActions rowActions--sticky">
           <button
             type="button"
             className="iconButton"
@@ -392,7 +410,7 @@ export default function SetlistEditPage() {
             type="button"
             disabled={hasEncore}
             className="iconButton"
-            title="Encore区切り追加"
+            title={hasEncore ? 'Encoreは既に設定済みです' : 'Encore区切り追加'}
             aria-label="Encore区切り追加"
             onClick={() => addItem('ENCORE_START')}
           >
@@ -452,6 +470,40 @@ export default function SetlistEditPage() {
                         >
                           <IconDown />
                         </button>
+                        <details className="inlineMenu inlineMenu--right">
+                          <summary
+                            className="iconButton iconButton--compact"
+                            aria-label={`#${idx + 1} の詳細メニュー`}
+                            title="詳細メニュー"
+                          >
+                            <IconMore />
+                          </summary>
+                          <div className="inlineMenuPopup" role="menu" aria-label="すぐ下に追加">
+                            <button
+                              type="button"
+                              className="inlineMenuItem"
+                              onClick={() => addItemBelow(idx, 'SONG')}
+                            >
+                              曲をすぐ下に追加
+                            </button>
+                            <button
+                              type="button"
+                              className="inlineMenuItem"
+                              onClick={() => addItemBelow(idx, 'NOTE')}
+                            >
+                              NOTEをすぐ下に追加
+                            </button>
+                            <button
+                              type="button"
+                              className="inlineMenuItem"
+                              onClick={() => addItemBelow(idx, 'ENCORE_START')}
+                              disabled={hasEncore}
+                              title={hasEncore ? 'Encoreは既に設定済みです' : undefined}
+                            >
+                              Encoreをすぐ下に追加
+                            </button>
+                          </div>
+                        </details>
                         <button
                           type="button"
                           className="iconButton iconButton--compact iconButton--danger"
@@ -467,19 +519,24 @@ export default function SetlistEditPage() {
                     {expandedId === it.id && it.type === 'SONG' ? (
                       <div className="rowBody songEditorBody">
                         <div className="rowSubActions">
-                          <button
-                            type="button"
-                            className="iconButton"
-                            title="ライブラリから選択"
-                            aria-label="ライブラリから選択"
-                            onClick={() => {
-                              setPickerTargetId(it.id)
-                              setPickerOpen(true)
-                            }}
-                            disabled={(libraryItems ?? []).length === 0}
+                          <span
+                            className="iconButtonTooltipWrap"
+                            title={(libraryItems ?? []).length === 0 ? '楽曲ライブラリが未登録です' : undefined}
                           >
-                            <IconLibrary />
-                          </button>
+                            <button
+                              type="button"
+                              className="iconButton"
+                              title={(libraryItems ?? []).length === 0 ? undefined : 'ライブラリから選択'}
+                              aria-label="ライブラリから選択"
+                              onClick={() => {
+                                setPickerTargetId(it.id)
+                                setPickerOpen(true)
+                              }}
+                              disabled={(libraryItems ?? []).length === 0}
+                            >
+                              <IconLibrary />
+                            </button>
+                          </span>
                         </div>
                         <div className="songEditorGrid songEditorRow">
                           <label className="field">
