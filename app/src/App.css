@@ -199,6 +199,17 @@
   margin-bottom: 12px;
 }
 
+.rowActions--sticky {
+  position: sticky;
+  top: 116px;
+  z-index: 3;
+  padding: 8px;
+  margin: -8px -8px 12px;
+  border-radius: 14px;
+  background: color-mix(in oklab, var(--surface) 92%, transparent);
+  backdrop-filter: blur(6px);
+}
+
 .rows {
   display: grid;
   gap: 12px;
@@ -297,6 +308,54 @@
   width: 34px;
   text-align: center;
   flex: 0 0 34px;
+}
+
+.inlineMenu {
+  position: relative;
+}
+
+.inlineMenu summary {
+  list-style: none;
+}
+
+.inlineMenu summary::-webkit-details-marker {
+  display: none;
+}
+
+.inlineMenuPopup {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 4;
+  min-width: 180px;
+  display: grid;
+  gap: 4px;
+  padding: 6px;
+  border-radius: 12px;
+  border: 1px solid var(--outline);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.inlineMenu--right .inlineMenuPopup {
+  left: auto;
+  right: 0;
+}
+
+.inlineMenuItem {
+  width: 100%;
+  text-align: left;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px;
+  border: 1px solid color-mix(in oklab, var(--outline) 80%, transparent);
+  background: var(--surface-container);
+  color: var(--text);
+}
+
+.iconButtonTooltipWrap {
+  display: inline-flex;
 }
 
 .rowHeadSpacer {
