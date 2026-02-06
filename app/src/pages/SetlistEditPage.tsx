@@ -543,7 +543,7 @@ export default function SetlistEditPage() {
 
   if (!setlistId) {
     return (
-      <section className="page">
+      <section className="page page--setlistEdit">
         <h1>セットリスト編集</h1>
         <p className="muted">IDが不正です。</p>
       </section>
@@ -552,7 +552,7 @@ export default function SetlistEditPage() {
 
   if (setlist === null) {
     return (
-      <section className="page">
+      <section className="page page--setlistEdit">
         <h1>セットリスト編集</h1>
         <p className="muted">読み込み中…</p>
       </section>
@@ -561,7 +561,7 @@ export default function SetlistEditPage() {
 
   if (!setlist) {
     return (
-      <section className="page">
+      <section className="page page--setlistEdit">
         <h1>セットリスト編集</h1>
         <p className="muted">見つかりませんでした。</p>
       </section>
@@ -569,7 +569,7 @@ export default function SetlistEditPage() {
   }
 
   return (
-    <section className="page">
+    <section className="page page--setlistEdit">
       <div className="pageHeader">
         <h1>セットリスト編集</h1>
         <div className="pageActions">
@@ -663,37 +663,38 @@ export default function SetlistEditPage() {
                         </div>
                         <div className="rowIndex">#{idx + 1}</div>
                         {renderSummary(it)}
-                        <div className="rowHeadSpacer" />
-                        <button
-                          type="button"
-                          className="iconButton iconButton--compact"
-                          title="上へ"
-                          aria-label="上へ"
-                          disabled={idx === 0}
-                          onClick={() => moveIndex(idx, idx - 1)}
-                        >
-                          <IconUp />
-                        </button>
-                        <button
-                          type="button"
-                          className="iconButton iconButton--compact"
-                          title="下へ"
-                          aria-label="下へ"
-                          disabled={idx === items.length - 1}
-                          onClick={() => moveIndex(idx, idx + 1)}
-                        >
-                          <IconDown />
-                        </button>
-                        <RowDetailMenu idx={idx} hasEncore={hasEncore} addItemBelow={addItemBelow} />
-                        <button
-                          type="button"
-                          className="iconButton iconButton--compact iconButton--danger"
-                          title="行削除"
-                          aria-label="行削除"
-                          onClick={() => confirmDeleteItem(it.id)}
-                        >
-                          <IconTrash />
-                        </button>
+                        <div className="rowHeadActions">
+                          <button
+                            type="button"
+                            className="iconButton iconButton--compact"
+                            title="上へ"
+                            aria-label="上へ"
+                            disabled={idx === 0}
+                            onClick={() => moveIndex(idx, idx - 1)}
+                          >
+                            <IconUp />
+                          </button>
+                          <button
+                            type="button"
+                            className="iconButton iconButton--compact"
+                            title="下へ"
+                            aria-label="下へ"
+                            disabled={idx === items.length - 1}
+                            onClick={() => moveIndex(idx, idx + 1)}
+                          >
+                            <IconDown />
+                          </button>
+                          <RowDetailMenu idx={idx} hasEncore={hasEncore} addItemBelow={addItemBelow} />
+                          <button
+                            type="button"
+                            className="iconButton iconButton--compact iconButton--danger"
+                            title="行削除"
+                            aria-label="行削除"
+                            onClick={() => confirmDeleteItem(it.id)}
+                          >
+                            <IconTrash />
+                          </button>
+                        </div>
                       </>
                     }
                   >

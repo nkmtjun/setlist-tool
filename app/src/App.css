@@ -54,6 +54,10 @@
   margin: 0 auto;
 }
 
+.page.page--setlistEdit {
+  max-width: 1240px;
+}
+
 .pageHeader {
   display: flex;
   align-items: baseline;
@@ -470,6 +474,18 @@
   flex: 1 1 0;
 }
 
+.page--setlistEdit .rowSummary {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.page--setlistEdit .rowHeadActions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
 .rowSummaryField {
   display: grid;
   grid-template-rows: auto auto;
@@ -520,6 +536,106 @@
 @media (max-width: 680px) {
   .rowHead {
     flex-wrap: wrap;
+  }
+
+  .page--setlistEdit .rowSummary {
+    flex: 1 0 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .page--setlistEdit .rowSummaryPlaceholder {
+    display: none;
+  }
+
+  .page--setlistEdit .rowSummary--song {
+    grid-template-rows: auto auto auto auto;
+  }
+
+  .page--setlistEdit .rowSummary--song > :nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .page--setlistEdit .rowSummary--song > :nth-child(2) {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .page--setlistEdit .rowSummary--song > :nth-child(3) {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+  .page--setlistEdit .rowSummary--song > :nth-child(4) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .page--setlistEdit .rowSummary--song > :nth-child(5) {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  .page--setlistEdit .rowSummary--song > :nth-child(6) {
+    grid-column: 1 / -1;
+    grid-row: 4;
+  }
+
+  .page--setlistEdit .rowSummary--note {
+    grid-template-rows: auto auto;
+  }
+  .page--setlistEdit .rowSummary--note > :nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .page--setlistEdit .rowSummary--note > :nth-child(2) {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .page--setlistEdit .rowSummary--note > :nth-child(4) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .page--setlistEdit .rowSummary--note > :nth-child(5) {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .page--setlistEdit .rowSummary--encore {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+  }
+  .page--setlistEdit .rowSummary--encore > :nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .page--setlistEdit .rowSummary--encore > :nth-child(4) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .page--setlistEdit .rowHeadActions {
+    flex: 1 0 100%;
+    justify-content: flex-end;
+    margin-top: 8px;
+  }
+
+  .page--setlistEdit .dragHandle {
+    width: 46px;
+    min-width: 46px;
+    flex: 0 0 46px;
+  }
+
+  .page--setlistEdit .rowBadge {
+    width: 68px;
+    min-width: 68px;
+    flex: 0 0 68px;
+  }
+
+  .page--setlistEdit .rowCode {
+    width: 48px;
+    min-width: 48px;
+    flex: 0 0 48px;
+  }
+
+  .page--setlistEdit .rowIndex {
+    width: 30px;
+    flex: 0 0 30px;
   }
 }
 
