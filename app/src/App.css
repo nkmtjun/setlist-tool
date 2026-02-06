@@ -82,6 +82,69 @@
   color: var(--muted);
 }
 
+.themeToggleControl {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.themeToggleLabel {
+  font-weight: 600;
+}
+
+.themeToggleSwitch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.themeToggleSwitch input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.themeToggleSlider {
+  width: 48px;
+  height: 28px;
+  background: var(--surface-container-high);
+  border: 1px solid var(--outline);
+  border-radius: 999px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+  position: relative;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.themeToggleSlider::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.themeToggleSwitch input:checked + .themeToggleSlider {
+  background: color-mix(in oklab, var(--primary) 40%, var(--surface-container));
+  border-color: color-mix(in oklab, var(--primary) 60%, var(--outline));
+}
+
+.themeToggleSwitch input:checked + .themeToggleSlider::after {
+  transform: translateX(20px);
+}
+
+.themeToggleSwitch input:focus-visible + .themeToggleSlider {
+  outline: 3px solid color-mix(in oklab, var(--accent) 35%, transparent);
+  outline-offset: 3px;
+}
+
 .srOnly {
   position: absolute;
   width: 1px;
