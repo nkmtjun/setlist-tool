@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 
+import changelog from '../../CHANGELOG.md?raw';
+
 export default function HelpPage() {
   const navigate = useNavigate();
 
@@ -40,7 +42,14 @@ export default function HelpPage() {
             <p>LINEやSNSでの共有に便利です。</p>
           </div>
         </article>
-        
+
+        <article className="card">
+          <div className="cardTitle">更新履歴</div>
+          <div className="detailsBody">
+            <pre className="outputBox">{changelog}</pre>
+          </div>
+        </article>
+         
         <article className="card">
           <div className="cardTitle">データの保存について</div>
           <div className="detailsBody">
