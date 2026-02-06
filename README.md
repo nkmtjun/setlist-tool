@@ -28,6 +28,11 @@ npm run preview
 - `.github/workflows/deploy-pages.yml` が `main` への push をトリガーに `app/` をビルドし、`app/dist` を Pages にデプロイします。
 - ルーティングは HashRouter を使用しています（GitHub Pages の静的配信で 404 を避けるため）。
 
+## 更新履歴
+
+- `app/CHANGELOG.md` を参照
+- アプリ内の「ヘルプ」でも表示される
+
 ## データ保存について
 
 - 保存先はブラウザの IndexedDB です。
