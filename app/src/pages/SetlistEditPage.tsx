@@ -347,6 +347,12 @@ export default function SetlistEditPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [pickerOpen, setPickerOpen] = useState(false)
   const [pickerTargetId, setPickerTargetId] = useState<string | null>(null)
+  const [titleAssistFocusId, setTitleAssistFocusId] = useState<string | null>(null)
+  const titleAssistAnchorRef = useRef<HTMLInputElement | null>(null)
+  const titleAssistMenuRef = useRef<HTMLDivElement | null>(null)
+  const [titleAssistPos, setTitleAssistPos] = useState<{ top: number; left: number } | null>(null)
+  const [titleAssistWidth, setTitleAssistWidth] = useState<number | null>(null)
+  const [titleAssistMaxHeight, setTitleAssistMaxHeight] = useState<number | null>(null)
   const [isScrolled, setIsScrolled] = useState(false)
   const initializedRef = useRef(false)
   const saveTimerRef = useRef<number | null>(null)
@@ -424,6 +430,169 @@ export default function SetlistEditPage() {
   )
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
+
+  const closeTitleAssist = useCallback(() => {
+    titleAssistAnchorRef.current = null
+    setTitleAssistPos(null)
+    setTitleAssistFocusId(null)
+    setTitleAssistWidth(null)
+    setTitleAssistMaxHeight(null)
+  }, [])
+
+  const titleAssist = useMemo<{ open: boolean; targetId: string | null; suggestions: NonNullable<typeof libraryItems> }>(() => {
+    const targetId = titleAssistFocusId
+    if (!targetId) {
+      return { open: false, targetId: null, suggestions: [] }
+    }
+
+    const target = items.find((x) => x.id === targetId)
+    if (!target || target.type !== 'SONG') {
+      return { open: false, targetId, suggestions: [] }
+    }
+
+    const titleQuery = (target.title ?? '').trim()
+    const artistQuery = (target.artist ?? '').trim()
+    const queryLower = (titleQuery.length > 0 ? titleQuery : artistQuery).toLowerCase()
+    if (queryLower.length === 0) {
+      return { open: false, targetId, suggestions: [] }
+    }
+
+    const suggestions = (libraryItems ?? [])
+      .filter((x) => `${x.title ?? ''} ${x.artist ?? ''}`.toLowerCase().includes(queryLower))
+      .slice(0, 3)
+
+    return { open: suggestions.length > 0, targetId, suggestions }
+  }, [items, libraryItems, titleAssistFocusId])
+
+  const updateTitleAssistPosition = useCallback(() => {
+    const anchorEl = titleAssistAnchorRef.current
+    const menuEl = titleAssistMenuRef.current
+    if (!anchorEl || !menuEl) return
+
+    const t = anchorEl.getBoundingClientRect()
+    const m = menuEl.getBoundingClientRect()
+
+    const gap = 6
+    const margin = 10
+    const vw = window.innerWidth
+    const vh = window.innerHeight
+
+    const naturalMenuHeight = menuEl.scrollHeight
+    const spaceBelow = Math.max(0, vh - margin - (t.bottom + gap))
+    const spaceAbove = Math.max(0, t.top - gap - margin)
+
+    const fitsBelow = naturalMenuHeight <= spaceBelow
+    const fitsAbove = naturalMenuHeight <= spaceAbove
+
+    const placement: 'below' | 'above' = fitsBelow ? 'below' : fitsAbove ? 'above' : spaceBelow >= spaceAbove ? 'below' : 'above'
+    const maxHeight = Math.min(naturalMenuHeight, placement === 'below' ? spaceBelow : spaceAbove)
+
+    // 「曲名」入力の直下を基本配置にする
+    let left = t.left
+    const top = placement === 'below' ? t.bottom + gap : t.top - gap - maxHeight
+
+    // 左右のはみ出しを抑える
+    left = Math.min(Math.max(left, margin), Math.max(margin, vw - margin - m.width))
+
+    setTitleAssistPos({ top, left })
+    setTitleAssistMaxHeight(maxHeight)
+  }, [])
+
+  useLayoutEffect(() => {
+    if (!titleAssist.open) return
+    // 初回描画後にサイズが取れるのでそこで位置決め
+    updateTitleAssistPosition()
+  }, [titleAssist.open, titleAssist.suggestions.length, titleAssist.targetId, updateTitleAssistPosition])
+
+  useEffect(() => {
+    if (!titleAssist.open) return
+
+    const onReposition = () => updateTitleAssistPosition()
+    window.addEventListener('resize', onReposition)
+    // スクロールコンテナ内でも追従できるよう capture で拾う
+    document.addEventListener('scroll', onReposition, true)
+
+    return () => {
+      window.removeEventListener('resize', onReposition)
+      document.removeEventListener('scroll', onReposition, true)
+    }
+  }, [titleAssist.open, updateTitleAssistPosition])
+
+  useEffect(() => {
+    if (!titleAssist.open) return
+
+    const onPointerDown = (e: PointerEvent) => {
+      const target = e.target
+      if (!(target instanceof Node)) return
+
+      const menuEl = titleAssistMenuRef.current
+      const anchorEl = titleAssistAnchorRef.current
+      if (!menuEl || !anchorEl) return
+      if (menuEl.contains(target) || anchorEl.contains(target)) return
+
+      closeTitleAssist()
+    }
+
+    // capture: 子要素側で stopPropagation されても確実に検知
+    document.addEventListener('pointerdown', onPointerDown, true)
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown, true)
+    }
+  }, [titleAssist.open, closeTitleAssist])
+
+  const titleAssistMenu = titleAssist.open
+    ? createPortal(
+        <div
+          ref={titleAssistMenuRef}
+          className="inlineMenuPopup inlineMenuPopup--portal"
+          role="listbox"
+          aria-label="曲名候補"
+          style={
+            titleAssistPos
+              ? ({
+                  top: titleAssistPos.top,
+                  left: titleAssistPos.left,
+                  width: titleAssistWidth ?? undefined,
+                  minWidth: titleAssistWidth ?? undefined,
+                  maxHeight: titleAssistMaxHeight ?? undefined,
+                  overflowY: 'auto',
+                } satisfies CSSProperties)
+              : ({
+                  top: 0,
+                  left: 0,
+                  visibility: 'hidden',
+                  width: titleAssistWidth ?? undefined,
+                  minWidth: titleAssistWidth ?? undefined,
+                  maxHeight: titleAssistMaxHeight ?? undefined,
+                  overflowY: 'auto',
+                } satisfies CSSProperties)
+          }
+        >
+          {titleAssist.suggestions.map((song) => (
+            <button
+              key={song.id}
+              type="button"
+              className="inlineMenuItem"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => {
+                const targetId = titleAssist.targetId
+                if (!targetId) return
+                setItems((prev) =>
+                  prev.map((x) =>
+                    x.id === targetId && x.type === 'SONG' ? { ...x, title: song.title, artist: song.artist } : x,
+                  ),
+                )
+                closeTitleAssist()
+              }}
+            >
+              <div className="pickerTitle">{song.title}</div>
+              <div className="pickerMeta">{song.artist?.trim() ? song.artist : '（アーティスト未入力）'}</div>
+            </button>
+          ))}
+        </div>,
+        document.body,
+      )
+    : null
 
   function moveIndex(from: number, to: number) {
     setItems((prev) => {
@@ -638,117 +807,189 @@ export default function SetlistEditPage() {
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
             <SortableContext items={items.map((x) => x.id)} strategy={verticalListSortingStrategy}>
               <div className="rows">
-                {items.map((it, idx) => (
-                  <SortableRow
-                    key={it.id}
-                    id={it.id}
-                    isExpanded={expandedId === it.id}
-                    head={
-                      <>
-                        <button
-                          type="button"
-                          className="iconButton iconButton--compact"
-                          title={expandedId === it.id ? '折りたたむ' : '展開する'}
-                          aria-label={expandedId === it.id ? '折りたたむ' : '展開する'}
-                          onClick={() => setExpandedId((prev) => (prev === it.id ? null : it.id))}
-                        >
-                          {expandedId === it.id ? <IconChevronUp /> : <IconChevronDown />}
-                        </button>
-                        {renderTypeBadge(it.type)}
-                        <div
-                          className={`rowCode${it.type === 'SONG' ? '' : ' rowCode--placeholder'}`}
-                          aria-hidden={it.type === 'SONG' ? undefined : true}
-                        >
-                          {it.type === 'SONG' ? (codeMap[it.id] ?? '') : 'M00'}
-                        </div>
-                        <div className="rowIndex">#{idx + 1}</div>
-                        {renderSummary(it)}
-                        <div className="rowHeadActions">
+                {items.map((it, idx) => {
+                  return (
+                    <SortableRow
+                      key={it.id}
+                      id={it.id}
+                      isExpanded={expandedId === it.id}
+                      head={
+                        <>
                           <button
                             type="button"
                             className="iconButton iconButton--compact"
-                            title="上へ"
-                            aria-label="上へ"
-                            disabled={idx === 0}
-                            onClick={() => moveIndex(idx, idx - 1)}
+                            title={expandedId === it.id ? '折りたたむ' : '展開する'}
+                            aria-label={expandedId === it.id ? '折りたたむ' : '展開する'}
+                            onClick={() => setExpandedId((prev) => (prev === it.id ? null : it.id))}
                           >
-                            <IconUp />
+                            {expandedId === it.id ? <IconChevronUp /> : <IconChevronDown />}
                           </button>
-                          <button
-                            type="button"
-                            className="iconButton iconButton--compact"
-                            title="下へ"
-                            aria-label="下へ"
-                            disabled={idx === items.length - 1}
-                            onClick={() => moveIndex(idx, idx + 1)}
+                          {renderTypeBadge(it.type)}
+                          <div
+                            className={`rowCode${it.type === 'SONG' ? '' : ' rowCode--placeholder'}`}
+                            aria-hidden={it.type === 'SONG' ? undefined : true}
                           >
-                            <IconDown />
-                          </button>
-                          <RowDetailMenu idx={idx} hasEncore={hasEncore} addItemBelow={addItemBelow} />
-                          <button
-                            type="button"
-                            className="iconButton iconButton--compact iconButton--danger"
-                            title="行削除"
-                            aria-label="行削除"
-                            onClick={() => confirmDeleteItem(it.id)}
-                          >
-                            <IconTrash />
-                          </button>
-                        </div>
-                      </>
-                    }
-                  >
-                    {expandedId === it.id && it.type === 'SONG' ? (
-                      <div className="rowBody songEditorBody">
-                        <div className="rowSubActions">
-                          <span
-                            className="iconButtonTooltipWrap"
-                            title={(libraryItems ?? []).length === 0 ? '楽曲ライブラリが未登録です' : undefined}
-                          >
+                            {it.type === 'SONG' ? (codeMap[it.id] ?? '') : 'M00'}
+                          </div>
+                          <div className="rowIndex">#{idx + 1}</div>
+                          {renderSummary(it)}
+                          <div className="rowHeadActions">
                             <button
                               type="button"
-                              className="iconButton"
-                              title={(libraryItems ?? []).length === 0 ? undefined : 'ライブラリから選択'}
-                              aria-label="ライブラリから選択"
-                              onClick={() => {
-                                setPickerTargetId(it.id)
-                                setPickerOpen(true)
-                              }}
-                              disabled={(libraryItems ?? []).length === 0}
+                              className="iconButton iconButton--compact"
+                              title="上へ"
+                              aria-label="上へ"
+                              disabled={idx === 0}
+                              onClick={() => moveIndex(idx, idx - 1)}
                             >
-                              <IconLibrary />
+                              <IconUp />
                             </button>
-                          </span>
+                            <button
+                              type="button"
+                              className="iconButton iconButton--compact"
+                              title="下へ"
+                              aria-label="下へ"
+                              disabled={idx === items.length - 1}
+                              onClick={() => moveIndex(idx, idx + 1)}
+                            >
+                              <IconDown />
+                            </button>
+                            <RowDetailMenu idx={idx} hasEncore={hasEncore} addItemBelow={addItemBelow} />
+                            <button
+                              type="button"
+                              className="iconButton iconButton--compact iconButton--danger"
+                              title="行削除"
+                              aria-label="行削除"
+                              onClick={() => confirmDeleteItem(it.id)}
+                            >
+                              <IconTrash />
+                            </button>
+                          </div>
+                        </>
+                      }
+                    >
+                      {expandedId === it.id && it.type === 'SONG' ? (
+                        <div className="rowBody songEditorBody">
+                          <div className="rowSubActions">
+                            <span
+                              className="iconButtonTooltipWrap"
+                              title={(libraryItems ?? []).length === 0 ? '楽曲ライブラリが未登録です' : undefined}
+                            >
+                              <button
+                                type="button"
+                                className="iconButton"
+                                title={(libraryItems ?? []).length === 0 ? undefined : 'ライブラリから選択'}
+                                aria-label="ライブラリから選択"
+                                onClick={() => {
+                                  setPickerTargetId(it.id)
+                                  setPickerOpen(true)
+                                }}
+                                disabled={(libraryItems ?? []).length === 0}
+                              >
+                                <IconLibrary />
+                              </button>
+                            </span>
+                          </div>
+                          <div className="songEditorGrid songEditorRow">
+                            <label className="field">
+                              <div className="fieldLabel">曲名</div>
+                              <input
+                                className="textInput"
+                                value={it.title ?? ''}
+                                onFocus={(e) => {
+                                  titleAssistAnchorRef.current = e.currentTarget
+                                  setTitleAssistPos(null)
+                                  setTitleAssistWidth(e.currentTarget.getBoundingClientRect().width)
+                                  setTitleAssistMaxHeight(null)
+                                  setTitleAssistFocusId(it.id)
+                                }}
+                                onBlur={() => {
+                                  titleAssistAnchorRef.current = null
+                                  setTitleAssistPos(null)
+                                  setTitleAssistWidth(null)
+                                  setTitleAssistMaxHeight(null)
+                                  setTitleAssistFocusId((prev) => (prev === it.id ? null : prev))
+                                }}
+                                onChange={(e) =>
+                                  setItems((prev) =>
+                                    prev.map((x) =>
+                                      x.id === it.id && x.type === 'SONG' ? { ...x, title: e.target.value } : x,
+                                    ),
+                                  )
+                                }
+                              />
+                            </label>
+                            <label className="field">
+                              <div className="fieldLabel">アーティスト</div>
+                              <input
+                                className="textInput"
+                                value={it.artist ?? ''}
+                                onChange={(e) =>
+                                  setItems((prev) =>
+                                    prev.map((x) =>
+                                      x.id === it.id && x.type === 'SONG' ? { ...x, artist: e.target.value } : x,
+                                    ),
+                                  )
+                                }
+                              />
+                            </label>
+                            <label className="field">
+                              <div className="fieldLabel">メモ（改行可）</div>
+                              <textarea
+                                className="textArea"
+                                rows={2}
+                                value={it.memo ?? ''}
+                                onChange={(e) =>
+                                  setItems((prev) =>
+                                    prev.map((x) =>
+                                      x.id === it.id && x.type === 'SONG' ? { ...x, memo: e.target.value } : x,
+                                    ),
+                                  )
+                                }
+                              />
+                            </label>
+                          </div>
                         </div>
-                        <div className="songEditorGrid songEditorRow">
+                      ) : null}
+
+                      {expandedId === it.id && it.type === 'NOTE' ? (
+                        <div className="rowBody">
                           <label className="field">
-                            <div className="fieldLabel">曲名</div>
+                            <div className="fieldLabel">ラベル</div>
                             <input
                               className="textInput"
-                              value={it.title ?? ''}
+                              value={it.label}
                               onChange={(e) =>
                                 setItems((prev) =>
                                   prev.map((x) =>
-                                    x.id === it.id && x.type === 'SONG' ? { ...x, title: e.target.value } : x,
+                                    x.id === it.id && x.type === 'NOTE' ? { ...x, label: e.target.value } : x,
+                                  ),
+                                )
+                              }
+                              placeholder="例: MC / 幕間 / Wアンコール"
+                            />
+                          </label>
+                          <label className="field">
+                            <div className="fieldLabel">本文（改行可）</div>
+                            <textarea
+                              className="textArea"
+                              rows={3}
+                              value={it.text ?? ''}
+                              onChange={(e) =>
+                                setItems((prev) =>
+                                  prev.map((x) =>
+                                    x.id === it.id && x.type === 'NOTE' ? { ...x, text: e.target.value } : x,
                                   ),
                                 )
                               }
                             />
                           </label>
-                          <label className="field">
-                            <div className="fieldLabel">アーティスト</div>
-                            <input
-                              className="textInput"
-                              value={it.artist ?? ''}
-                              onChange={(e) =>
-                                setItems((prev) =>
-                                  prev.map((x) =>
-                                    x.id === it.id && x.type === 'SONG' ? { ...x, artist: e.target.value } : x,
-                                  ),
-                                )
-                              }
-                            />
-                          </label>
+                        </div>
+                      ) : null}
+
+                      {expandedId === it.id && it.type === 'ENCORE_START' ? (
+                        <div className="rowBody">
+                          <div className="encoreLabel">Encore</div>
                           <label className="field">
                             <div className="fieldLabel">メモ（改行可）</div>
                             <textarea
@@ -758,75 +999,19 @@ export default function SetlistEditPage() {
                               onChange={(e) =>
                                 setItems((prev) =>
                                   prev.map((x) =>
-                                    x.id === it.id && x.type === 'SONG' ? { ...x, memo: e.target.value } : x,
+                                    x.id === it.id && x.type === 'ENCORE_START'
+                                      ? { ...x, memo: e.target.value }
+                                      : x,
                                   ),
                                 )
                               }
                             />
                           </label>
                         </div>
-                      </div>
-                    ) : null}
-
-                    {expandedId === it.id && it.type === 'NOTE' ? (
-                      <div className="rowBody">
-                        <label className="field">
-                          <div className="fieldLabel">ラベル</div>
-                          <input
-                            className="textInput"
-                            value={it.label}
-                            onChange={(e) =>
-                              setItems((prev) =>
-                                prev.map((x) =>
-                                  x.id === it.id && x.type === 'NOTE' ? { ...x, label: e.target.value } : x,
-                                ),
-                              )
-                            }
-                            placeholder="例: MC / 幕間 / Wアンコール"
-                          />
-                        </label>
-                        <label className="field">
-                          <div className="fieldLabel">本文（改行可）</div>
-                          <textarea
-                            className="textArea"
-                            rows={3}
-                            value={it.text ?? ''}
-                            onChange={(e) =>
-                              setItems((prev) =>
-                                prev.map((x) =>
-                                  x.id === it.id && x.type === 'NOTE' ? { ...x, text: e.target.value } : x,
-                                ),
-                              )
-                            }
-                          />
-                        </label>
-                      </div>
-                    ) : null}
-
-                    {expandedId === it.id && it.type === 'ENCORE_START' ? (
-                      <div className="rowBody">
-                        <div className="encoreLabel">Encore</div>
-                        <label className="field">
-                          <div className="fieldLabel">メモ（改行可）</div>
-                          <textarea
-                            className="textArea"
-                            rows={2}
-                            value={it.memo ?? ''}
-                            onChange={(e) =>
-                              setItems((prev) =>
-                                prev.map((x) =>
-                                  x.id === it.id && x.type === 'ENCORE_START'
-                                    ? { ...x, memo: e.target.value }
-                                    : x,
-                                ),
-                              )
-                            }
-                          />
-                        </label>
-                      </div>
-                    ) : null}
-                  </SortableRow>
-                ))}
+                      ) : null}
+                    </SortableRow>
+                  )
+                })}
               </div>
             </SortableContext>
           </DndContext>
@@ -851,6 +1036,7 @@ export default function SetlistEditPage() {
           setPickerTargetId(null)
         }}
       />
+      {titleAssistMenu}
     </section>
   )
 }
