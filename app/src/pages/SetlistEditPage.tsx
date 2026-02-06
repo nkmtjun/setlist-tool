@@ -343,9 +343,33 @@ export default function SetlistEditPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [pickerOpen, setPickerOpen] = useState(false)
   const [pickerTargetId, setPickerTargetId] = useState<string | null>(null)
+  const [isScrolled, setIsScrolled] = useState(false)
   const initializedRef = useRef(false)
   const saveTimerRef = useRef<number | null>(null)
   const lastSavedKeyRef = useRef<string>('')
+
+  useEffect(() => {
+    const scrollingEl = document.scrollingElement ?? document.documentElement
+    let ticking = false
+
+    const update = () => {
+      ticking = false
+      const next = scrollingEl.scrollTop > 0
+      setIsScrolled((prev) => (prev === next ? prev : next))
+    }
+
+    const onScroll = () => {
+      if (ticking) return
+      ticking = true
+      window.requestAnimationFrame(update)
+    }
+
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+    }
+  }, [])
 
   useEffect(() => {
     if (!setlist) return
@@ -572,13 +596,13 @@ export default function SetlistEditPage() {
         </div>
       </div>
 
-      <div className="panel">
-        <div className="rowActions rowActions--sticky">
-          <button
-            type="button"
-            className="iconButton"
-            title="曲追加"
-            aria-label="曲追加"
+        <div className="panel">
+          <div className={`rowActions rowActions--sticky${isScrolled ? ' rowActions--scrolled' : ''}`}>
+            <button
+              type="button"
+              className="iconButton"
+              title="曲追加"
+              aria-label="曲追加"
             onClick={() => addItem('SONG')}
           >
             <IconPlus />

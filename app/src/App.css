@@ -206,8 +206,26 @@
   padding: 8px;
   margin: -8px -8px 12px;
   border-radius: 14px;
-  background: color-mix(in oklab, var(--surface) 92%, transparent);
+  border: 1px solid transparent;
+  background: color-mix(in oklab, var(--surface) 88%, transparent);
+  -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
+  box-shadow: none;
+  transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, backdrop-filter 0.18s ease;
+}
+
+.rowActions--sticky.rowActions--scrolled {
+  background: color-mix(in oklab, var(--surface) 97%, transparent);
+  border-color: color-mix(in oklab, var(--outline) 85%, transparent);
+  box-shadow: var(--shadow-soft);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rowActions--sticky {
+    transition: none;
+  }
 }
 
 .rows {
@@ -357,6 +375,19 @@
   border: 1px solid color-mix(in oklab, var(--outline) 80%, transparent);
   background: var(--surface-container);
   color: var(--text);
+}
+
+.inlineMenuItem:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  color: var(--muted);
+  background: color-mix(in oklab, var(--surface-container) 80%, var(--surface));
+  border-color: color-mix(in oklab, var(--outline) 55%, transparent);
+  box-shadow: none;
+}
+
+.inlineMenuItem:disabled:hover {
+  filter: none;
 }
 
 .iconButtonTooltipWrap {
@@ -570,6 +601,16 @@
 
 .iconButton:hover {
   transform: translateY(-1px);
+}
+
+.iconButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.iconButton:disabled:hover {
+  transform: none;
+  filter: none;
 }
 
 .iconButton--danger,
