@@ -291,6 +291,56 @@
   flex: 0 0 76px;
 }
 
+.rowBadge--song {
+  border-color: color-mix(in oklab, var(--outline) 28%, var(--primary));
+  background: color-mix(in oklab, var(--surface-container) 58%, var(--primary-container));
+  color: var(--on-primary-container);
+}
+
+.rowBadge--note {
+  border-color: color-mix(in oklab, var(--outline) 30%, #0f766e);
+  background: color-mix(in oklab, var(--surface-container) 62%, #ccfbf1);
+  color: color-mix(in oklab, #0f766e 86%, var(--text));
+}
+
+.rowBadge--encore {
+  border-color: color-mix(in oklab, var(--outline) 28%, #b45309);
+  background: color-mix(in oklab, var(--surface-container) 62%, #ffedd5);
+  color: color-mix(in oklab, #b45309 84%, var(--text));
+}
+
+.rowBadge--song:focus-visible {
+  outline: 3px solid color-mix(in oklab, var(--primary) 30%, transparent);
+  outline-offset: 2px;
+}
+
+.rowBadge--note:focus-visible {
+  outline: 3px solid color-mix(in oklab, #0f766e 28%, transparent);
+  outline-offset: 2px;
+}
+
+.rowBadge--encore:focus-visible {
+  outline: 3px solid color-mix(in oklab, #b45309 28%, transparent);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .rowBadge--song:hover {
+    background: color-mix(in oklab, var(--surface-container) 54%, var(--primary-container));
+    border-color: color-mix(in oklab, var(--outline) 30%, var(--primary));
+  }
+
+  .rowBadge--note:hover {
+    background: color-mix(in oklab, var(--surface-container) 60%, #ccfbf1);
+    border-color: color-mix(in oklab, var(--outline) 32%, #0f766e);
+  }
+
+  .rowBadge--encore:hover {
+    background: color-mix(in oklab, var(--surface-container) 60%, #ffedd5);
+    border-color: color-mix(in oklab, var(--outline) 30%, #b45309);
+  }
+}
+
 .rowBadge svg {
   width: 16px;
   height: 16px;
@@ -302,9 +352,9 @@
   font-size: 12px;
   padding: 2px 8px;
   border-radius: 999px;
-  border: 1px solid color-mix(in oklab, var(--outline) 55%, var(--accent));
-  color: var(--accent);
-  background: var(--surface-container);
+  border: 1px solid color-mix(in oklab, var(--outline) 55%, var(--primary));
+  color: var(--on-primary-container);
+  background: color-mix(in oklab, var(--surface-container) 78%, var(--primary-container));
   line-height: 1.2;
   align-self: flex-start;
   width: 54px;
@@ -312,6 +362,18 @@
   display: inline-flex;
   justify-content: center;
   flex: 0 0 54px;
+}
+
+.rowCode:focus-visible {
+  outline: 3px solid color-mix(in oklab, var(--primary) 30%, transparent);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .rowCode:hover {
+    background: color-mix(in oklab, var(--surface-container) 70%, var(--primary-container));
+    border-color: color-mix(in oklab, var(--outline) 45%, var(--primary));
+  }
 }
 
 .rowCode--placeholder {

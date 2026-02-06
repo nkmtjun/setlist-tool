@@ -315,9 +315,13 @@ function renderTypeBadge(type: SetlistItem['type']) {
     )
   }
   if (type === 'ENCORE_START') {
-    return <div className="rowBadge">ENCORE</div>
+    return (
+      <div className="rowBadge rowBadge--encore" aria-label="ENCORE">
+        ENCORE
+      </div>
+    )
   }
-  return <div className="rowBadge">NOTE</div>
+  return <div className="rowBadge rowBadge--note">NOTE</div>
 }
 
 function firstLine(text?: string | null): string {
