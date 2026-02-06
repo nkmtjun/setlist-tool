@@ -17,6 +17,7 @@
   --accent: #2f5da7;
   --shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
   --shadow-soft: 0 2px 8px rgba(15, 23, 42, 0.12);
+  --app-background: #f7f8fc;
 
   font-family: "BIZ UDPGothic", "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, system-ui,
     -apple-system, "Segoe UI", sans-serif;
@@ -29,6 +30,28 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --primary: #8ab4ff;
+  --on-primary: #0b1a33;
+  --primary-container: #1c2f4f;
+  --on-primary-container: #d9e2ff;
+  --secondary: #b5b8c9;
+  --on-secondary: #1c1f28;
+  --surface: #111318;
+  --surface-container: #1c1f26;
+  --surface-container-high: #242733;
+  --surface-variant: #31343f;
+  --text: #e4e6eb;
+  --muted: #a2a7b3;
+  --outline: #3c404a;
+  --accent: #8ab4ff;
+  --shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+  --shadow-soft: 0 2px 10px rgba(0, 0, 0, 0.35);
+  --app-background: #0c0f14;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -38,7 +61,7 @@ body {
   min-width: 320px;
   min-height: 100vh;
   color: var(--text);
-  background: #f7f8fc;
+  background: var(--app-background);
 }
 
 a {
