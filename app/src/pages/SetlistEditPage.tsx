@@ -1,6 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { type CSSProperties, type ReactNode, useEffect, useMemo, useRef, useState } from 'react'
+import { type CSSProperties, type ReactNode, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { createPortal } from 'react-dom'
 
 import {
   DndContext,
@@ -18,6 +19,179 @@ import { createSetlistItem, patchSetlist } from '../db/setlists'
 import { getSongCodeMap, getSongCounts } from '../domain/setlistCalc'
 import type { SetlistItem } from '../domain/types'
 import SongPicker from '../components/SongPicker'
+
+function RowDetailMenu(props: {
+  idx: number
+  hasEncore: boolean
+  addItemBelow: (idx: number, type: SetlistItem['type']) => void
+}) {
+  const { idx, hasEncore, addItemBelow } = props
+
+  const [open, setOpen] = useState(false)
+  const triggerRef = useRef<HTMLButtonElement | null>(null)
+  const menuRef = useRef<HTMLDivElement | null>(null)
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null)
+
+  const close = useCallback(() => {
+    setOpen(false)
+  }, [])
+
+  const updatePosition = useCallback(() => {
+    const triggerEl = triggerRef.current
+    const menuEl = menuRef.current
+    if (!triggerEl || !menuEl) return
+
+    const t = triggerEl.getBoundingClientRect()
+    const m = menuEl.getBoundingClientRect()
+
+    const gap = 6
+    const margin = 10
+    const vw = window.innerWidth
+    const vh = window.innerHeight
+
+    // 既存の見た目に合わせて「下・右寄せ」を基本配置にする
+    let left = t.right - m.width
+    let top = t.bottom + gap
+
+    // 右/左のはみ出しを抑える
+    left = Math.min(Math.max(left, margin), Math.max(margin, vw - margin - m.width))
+
+    // 下に出せない場合は上にフリップ。それでも厳しい場合はクランプ。
+    const bottomOverflow = top + m.height > vh - margin
+    const topCandidate = t.top - gap - m.height
+    if (bottomOverflow && topCandidate >= margin) {
+      top = topCandidate
+    } else {
+      top = Math.min(Math.max(top, margin), Math.max(margin, vh - margin - m.height))
+    }
+
+    setPos({ top, left })
+  }, [])
+
+  useLayoutEffect(() => {
+    if (!open) return
+    // 初回描画後にサイズが取れるのでそこで位置決め
+    updatePosition()
+  }, [open, updatePosition])
+
+  useEffect(() => {
+    if (!open) return
+
+    const onReposition = () => updatePosition()
+    window.addEventListener('resize', onReposition)
+    // スクロールコンテナ内でも追従できるよう capture で拾う
+    document.addEventListener('scroll', onReposition, true)
+
+    return () => {
+      window.removeEventListener('resize', onReposition)
+      document.removeEventListener('scroll', onReposition, true)
+    }
+  }, [open, updatePosition])
+
+  useEffect(() => {
+    if (!open) return
+
+    const onPointerDown = (e: PointerEvent) => {
+      const target = e.target
+      if (!(target instanceof Node)) return
+
+      const menuEl = menuRef.current
+      const triggerEl = triggerRef.current
+      if (!menuEl || !triggerEl) return
+      if (menuEl.contains(target) || triggerEl.contains(target)) return
+
+      close()
+    }
+
+    // capture: 子要素側で stopPropagation されても確実に検知
+    document.addEventListener('pointerdown', onPointerDown, true)
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown, true)
+    }
+  }, [open, close])
+
+  useEffect(() => {
+    if (!open) return
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') close()
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [open, close])
+
+  const menu = open
+    ? createPortal(
+        <div
+          ref={menuRef}
+          className="inlineMenuPopup inlineMenuPopup--portal"
+          role="menu"
+          aria-label="すぐ下に追加"
+          style={
+            pos
+              ? ({ top: pos.top, left: pos.left } satisfies CSSProperties)
+              : ({ top: 0, left: 0, visibility: 'hidden' } satisfies CSSProperties)
+          }
+        >
+          <button
+            type="button"
+            className="inlineMenuItem"
+            onClick={() => {
+              close()
+              addItemBelow(idx, 'SONG')
+            }}
+          >
+            曲をすぐ下に追加
+          </button>
+          <button
+            type="button"
+            className="inlineMenuItem"
+            onClick={() => {
+              close()
+              addItemBelow(idx, 'NOTE')
+            }}
+          >
+            NOTEをすぐ下に追加
+          </button>
+          <button
+            type="button"
+            className="inlineMenuItem"
+            onClick={() => {
+              close()
+              addItemBelow(idx, 'ENCORE_START')
+            }}
+            disabled={hasEncore}
+            title={hasEncore ? 'Encoreは既に設定済みです' : undefined}
+          >
+            Encoreをすぐ下に追加
+          </button>
+        </div>,
+        document.body,
+      )
+    : null
+
+  return (
+    <>
+      <button
+        ref={triggerRef}
+        type="button"
+        className="iconButton iconButton--compact"
+        aria-label={`#${idx + 1} の詳細メニュー`}
+        title="詳細メニュー"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={() => {
+          setPos(null)
+          setOpen((prev) => !prev)
+        }}
+      >
+        <IconMore />
+      </button>
+      {menu}
+    </>
+  )
+}
 
 function IconPlus() {
   return (
@@ -175,10 +349,22 @@ export default function SetlistEditPage() {
 
   useEffect(() => {
     if (!setlist) return
-    setTitle(setlist.title)
-    setItems(setlist.items)
-    initializedRef.current = true
-    lastSavedKeyRef.current = JSON.stringify({ title: setlist.title, items: setlist.items })
+
+    let cancelled = false
+    const nextTitle = setlist.title
+    const nextItems = setlist.items
+
+    queueMicrotask(() => {
+      if (cancelled) return
+      setTitle(nextTitle)
+      setItems(nextItems)
+      initializedRef.current = true
+      lastSavedKeyRef.current = JSON.stringify({ title: nextTitle, items: nextItems })
+    })
+
+    return () => {
+      cancelled = true
+    }
   }, [setlist])
 
   useEffect(() => {
@@ -470,40 +656,7 @@ export default function SetlistEditPage() {
                         >
                           <IconDown />
                         </button>
-                        <details className="inlineMenu inlineMenu--right">
-                          <summary
-                            className="iconButton iconButton--compact"
-                            aria-label={`#${idx + 1} の詳細メニュー`}
-                            title="詳細メニュー"
-                          >
-                            <IconMore />
-                          </summary>
-                          <div className="inlineMenuPopup" role="menu" aria-label="すぐ下に追加">
-                            <button
-                              type="button"
-                              className="inlineMenuItem"
-                              onClick={() => addItemBelow(idx, 'SONG')}
-                            >
-                              曲をすぐ下に追加
-                            </button>
-                            <button
-                              type="button"
-                              className="inlineMenuItem"
-                              onClick={() => addItemBelow(idx, 'NOTE')}
-                            >
-                              NOTEをすぐ下に追加
-                            </button>
-                            <button
-                              type="button"
-                              className="inlineMenuItem"
-                              onClick={() => addItemBelow(idx, 'ENCORE_START')}
-                              disabled={hasEncore}
-                              title={hasEncore ? 'Encoreは既に設定済みです' : undefined}
-                            >
-                              Encoreをすぐ下に追加
-                            </button>
-                          </div>
-                        </details>
+                        <RowDetailMenu idx={idx} hasEncore={hasEncore} addItemBelow={addItemBelow} />
                         <button
                           type="button"
                           className="iconButton iconButton--compact iconButton--danger"

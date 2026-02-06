@@ -337,6 +337,11 @@
   box-shadow: var(--shadow-soft);
 }
 
+.inlineMenuPopup--portal {
+  position: fixed;
+  z-index: 50;
+}
+
 .inlineMenu--right .inlineMenuPopup {
   left: auto;
   right: 0;
