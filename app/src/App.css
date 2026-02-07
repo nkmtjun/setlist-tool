@@ -567,6 +567,18 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+/* SetlistEdit の行ヘッダ内で、バッジ/コード/インデックスを縦中央に揃える。
+   rowSummary 側が2行以上になっても中央基準で安定させる。 */
+.page--setlistEdit .rowBadge,
+.page--setlistEdit .rowCode,
+.page--setlistEdit .rowIndex {
+  align-self: center;
+}
+
+.page--setlistEdit .rowCode {
+  align-items: center;
+}
+
 .page--setlistEdit .rowHeadActions {
   display: flex;
   gap: 8px;
